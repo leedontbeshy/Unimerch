@@ -1,6 +1,9 @@
+-- postgres_schema.sql
+-- Converted from MySQL schema in db.txt
+
 -- Bảng người dùng
 CREATE TABLE users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -8,14 +11,14 @@ CREATE TABLE users (
   student_id VARCHAR(20),
   phone VARCHAR(15),
   address TEXT,
-  role ENUM('user', 'seller', 'admin') DEFAULT 'user',
+  role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'seller', 'admin')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Bảng danh mục sản phẩm
 CREATE TABLE categories (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   image_url VARCHAR(255)
@@ -23,41 +26,41 @@ CREATE TABLE categories (
 
 -- Bảng sản phẩm
 CREATE TABLE products (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
   discount_price DECIMAL(10, 2),
-  quantity INT DEFAULT 0,
+  quantity INTEGER DEFAULT 0,
   image_url VARCHAR(255),
-  category_id INT,
-  seller_id INT,
-  status ENUM('available', 'out_of_stock', 'discontinued') DEFAULT 'available',
+  category_id INTEGER,
+  seller_id INTEGER,
+  status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'out_of_stock', 'discontinued')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id),
   FOREIGN KEY (seller_id) REFERENCES users(id)
 );
 
 -- Bảng đơn hàng
 CREATE TABLE orders (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
   total_amount DECIMAL(10, 2) NOT NULL,
   shipping_address TEXT NOT NULL,
   payment_method VARCHAR(50) NOT NULL,
-  status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Bảng chi tiết đơn hàng
 CREATE TABLE order_items (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  order_id INT NOT NULL,
-  product_id INT NOT NULL,
-  quantity INT NOT NULL,
+  id SERIAL PRIMARY KEY,
+  order_id INTEGER NOT NULL,
+  product_id INTEGER NOT NULL,
+  quantity INTEGER NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
   FOREIGN KEY (order_id) REFERENCES orders(id),
   FOREIGN KEY (product_id) REFERENCES products(id)
@@ -65,12 +68,35 @@ CREATE TABLE order_items (
 
 -- Bảng đánh giá sản phẩm
 CREATE TABLE reviews (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  product_id INT NOT NULL,
-  user_id INT NOT NULL,
-  rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  id SERIAL PRIMARY KEY,
+  product_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
   comment TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (product_id) REFERENCES products(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Indexes for better performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_seller ON products(seller_id);
+CREATE INDEX idx_orders_user ON orders(user_id);
+CREATE INDEX idx_reviews_product ON reviews(product_id);
+CREATE INDEX idx_reviews_user ON reviews(user_id);
+
+-- Trigger for updated_at (PostgreSQL doesn't auto-update like MySQL)
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Apply trigger to tables with updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
