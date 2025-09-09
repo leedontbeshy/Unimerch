@@ -110,7 +110,48 @@
   "message": "Lỗi server"
 }
 ```
+### POST /api/auth/logout
+Đăng xuất tài khoản.
 
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Đăng xuất thành công",
+  "data": null
+}
+```
+
+---
+
+## Common Error Responses
+
+**400 - Validation Error:**
+```json
+{
+  "success": false,
+  "message": "Dữ liệu không hợp lệ",
+  "errors": [...]
+}
+```
+
+**401 - Authentication Error:**
+```json
+{
+  "success": false,
+  "message": "Token không được cung cấp"
+}
+```
+
+**409 - Conflict:**
+```json
+{
+  "success": false,
+  "message": "Email đã được sử dụng"
+}
+```
+
+---
 ---
 
 ## Notes

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { hashPassword, comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
+const { addToBlacklist } = require('../middleware/auth');
 
 const register = async (req, res) => {
     try {
@@ -112,7 +113,22 @@ const login = async (req, res) => {
     }
 };
 
+const logout = async (req, res) => {
+    try {
+        const token = req.token;
+        
+        // Thêm token vào blacklist
+        addToBlacklist(token);
+        
+        return successResponse(res, null, 'Đăng xuất thành công');
+    } catch (error) {
+        console.error('Logout error:', error);
+        return errorResponse(res, 'Lỗi server', 500);
+    }
+};
+
 module.exports = {
     register,
-    login
+    login,
+    logout
 };
