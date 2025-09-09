@@ -65,7 +65,8 @@ const register = async (req, res) => {
     } catch (error) {
         console.error('Register error:', error);
         
-        if (error.code === 'ER_DUP_ENTRY') {
+        // PostgreSQL duplicate key error
+        if (error.code === '23505') { // PostgreSQL unique violation
             return errorResponse(res, 'Email hoặc username đã tồn tại', 409);
         }
         
