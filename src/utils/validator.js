@@ -53,6 +53,25 @@ const validateLogin = [
         .withMessage('Mật khẩu không được để trống')
 ];
 
+const validateForgotPassword = [
+    body('email')
+        .isEmail()
+        .withMessage('Email không hợp lệ')
+        .normalizeEmail()
+];
+
+const validateResetPassword = [
+    body('resetToken')
+        .notEmpty()
+        .withMessage('Reset token không được để trống'),
+    
+    body('newPassword')
+        .isLength({ min: 6 })
+        .withMessage('Mật khẩu phải có ít nhất 6 ký tự')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+        .withMessage('Mật khẩu phải chứa ít nhất 1 chữ thường, 1 chữ hoa và 1 số')
+];
+
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -68,5 +87,7 @@ const handleValidationErrors = (req, res, next) => {
 module.exports = {
     validateRegister,
     validateLogin,
+    validateForgotPassword,
+    validateResetPassword,
     handleValidationErrors
 };

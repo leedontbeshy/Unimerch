@@ -159,7 +159,6 @@
 - Mật khẩu được mã hóa bằng bcrypt
 - Các trường `studentId`, `phone`, `address` là optional khi đăng ký
 - Email và username phải unique
-```
 
 ## Test endpoint login:
 
@@ -170,7 +169,29 @@
   "password": "MyPassword123"
 }
 ```
+### POST /api/auth/forgot-password
+Quên mật khẩu - gửi email reset.
 
-Bây giờ bạn có thể test cả register và login! 🚀
+**Request:**
+```json
+{
+  "email": "john@example.com"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Email hướng dẫn reset mật khẩu đã được gửi",
+  "data": null
+}
+```
+
+**Note:** Email sẽ chứa link reset có thời hạn 15 phút.
+
+
+
+
 
 

@@ -3,6 +3,11 @@ const { hashPassword, comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
 const { addToBlacklist } = require('../middleware/auth');
+const { sendResetPasswordEmail } = require('../utils/email');
+const crypto = require('crypto');
+
+// Lưu reset tokens tạm thời (trong thực tế nên lưu vào database)
+const resetTokens = new Map();
 
 const register = async (req, res) => {
     try {
@@ -127,8 +132,86 @@ const logout = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Kiểm tra user có tồn tại không
+        const user = await User.findByEmail(email);
+        if (!user) {
+            // Vẫn trả về success để không tiết lộ email có tồn tại hay không
+            return successResponse(res, null, 'Nếu email tồn tại trong hệ thống, bạn sẽ nhận được email hướng dẫn reset mật khẩu');
+        }
+
+        // Tạo reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 phút
+
+        // Lưu reset token
+        resetTokens.set(resetToken, {
+            email: user.email,
+            expiry: resetTokenExpiry
+        });
+
+        // Gửi email reset password
+        try {
+            await sendResetPasswordEmail(user.email, resetToken);
+            console.log(`Reset password email sent to: ${user.email}`);
+        } catch (emailError) {
+            console.error('Failed to send reset email:', emailError);
+            // Xóa token nếu gửi email thất bại
+            resetTokens.delete(resetToken);
+            return errorResponse(res, 'Không thể gửi email reset password', 500);
+        }
+
+        return successResponse(res, null, 'Email hướng dẫn reset mật khẩu đã được gửi');
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        return errorResponse(res, 'Lỗi server', 500);
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { resetToken, newPassword } = req.body;
+
+        // Kiểm tra reset token
+        const tokenData = resetTokens.get(resetToken);
+        if (!tokenData) {
+            return errorResponse(res, 'Reset token không hợp lệ hoặc đã hết hạn', 400);
+        }
+
+        // Kiểm tra token có hết hạn không
+        if (Date.now() > tokenData.expiry) {
+            resetTokens.delete(resetToken);
+            return errorResponse(res, 'Reset token đã hết hạn', 400);
+        }
+
+        // Mã hóa mật khẩu mới
+        const hashedPassword = await hashPassword(newPassword);
+
+        // Cập nhật mật khẩu
+        const updated = await User.updatePassword(tokenData.email, hashedPassword);
+        if (!updated) {
+            return errorResponse(res, 'Không thể cập nhật mật khẩu', 500);
+        }
+
+        // Xóa reset token
+        resetTokens.delete(resetToken);
+
+        return successResponse(res, null, 'Mật khẩu đã được reset thành công. Bạn có thể đăng nhập với mật khẩu mới.');
+
+    } catch (error) {
+        console.error('Reset password error:', error);
+        return errorResponse(res, 'Lỗi server', 500);
+    }
+};
+
 module.exports = {
     register,
     login,
-    logout
+    logout,
+    forgotPassword,
+    resetPassword
 };
