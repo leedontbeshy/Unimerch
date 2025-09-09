@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test database connection
+// Test database connection (commented out for now)
 testConnection();
 
 // Routes
