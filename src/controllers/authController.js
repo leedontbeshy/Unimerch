@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const { hashPassword } = require('../utils/bcrypt');
+const { hashPassword, comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
 
@@ -37,7 +37,8 @@ const register = async (req, res) => {
         const token = generateToken({
             id: newUser.id,
             username: newUser.username,
-            email: newUser.email
+            email: newUser.email,
+            role: 'user'
         });
 
         // Trả về response thành công
@@ -49,7 +50,8 @@ const register = async (req, res) => {
                 fullName: newUser.fullName,
                 studentId: newUser.studentId,
                 phone: newUser.phone,
-                address: newUser.address
+                address: newUser.address,
+                role: 'user'
             },
             token
         }, 'Đăng ký thành công', 201);
@@ -57,7 +59,6 @@ const register = async (req, res) => {
     } catch (error) {
         console.error('Register error:', error);
         
-        // Xử lý lỗi database
         if (error.code === 'ER_DUP_ENTRY') {
             return errorResponse(res, 'Email hoặc username đã tồn tại', 409);
         }
@@ -66,6 +67,52 @@ const register = async (req, res) => {
     }
 };
 
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Tìm user theo email
+        const user = await User.findByEmail(email);
+        if (!user) {
+            return errorResponse(res, 'Email hoặc mật khẩu không đúng', 401);
+        }
+
+        // So sánh mật khẩu
+        const isPasswordValid = await comparePassword(password, user.password);
+        if (!isPasswordValid) {
+            return errorResponse(res, 'Email hoặc mật khẩu không đúng', 401);
+        }
+
+        // Tạo JWT token
+        const token = generateToken({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        });
+
+        // Trả về response thành công
+        return successResponse(res, {
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                fullName: user.full_name,
+                studentId: user.student_id,
+                phone: user.phone,
+                address: user.address,
+                role: user.role
+            },
+            token
+        }, 'Đăng nhập thành công');
+
+    } catch (error) {
+        console.error('Login error:', error);
+        return errorResponse(res, 'Lỗi server', 500);
+    }
+};
+
 module.exports = {
-    register
+    register,
+    login
 };

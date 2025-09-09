@@ -42,6 +42,17 @@ const validateRegister = [
         .withMessage('Địa chỉ không được vượt quá 500 ký tự')
 ];
 
+const validateLogin = [
+    body('email')
+        .isEmail()
+        .withMessage('Email không hợp lệ')
+        .normalizeEmail(),
+    
+    body('password')
+        .notEmpty()
+        .withMessage('Mật khẩu không được để trống')
+];
+
 const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -56,5 +67,6 @@ const handleValidationErrors = (req, res, next) => {
 
 module.exports = {
     validateRegister,
+    validateLogin,
     handleValidationErrors
 };
