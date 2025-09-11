@@ -2,6 +2,7 @@ const NodeServer = require('./core/server');
 const { register, login, logout, forgotPassword, resetPassword } = require('./controllers/authController');
 const { testConnection } = require('../config/database');
 const { authenticateToken } = require('./middleware/auth');
+const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./utils/validator');
 require('dotenv').config();
 
 // Tạo server instance
@@ -22,12 +23,12 @@ server.get('/', (req, res) => {
     ResponseHelper.success(res, null, '🚀 UniMerch API is running with Node.js thuần!');
 });
 
-// Auth routes 
-server.post('/api/auth/register', register);
-server.post('/api/auth/login', login);
+// Auth routes với validation
+server.post('/api/auth/register', validateRegister, register);
+server.post('/api/auth/login', validateLogin, login);
 server.post('/api/auth/logout', authenticateToken, logout);
-server.post('/api/auth/forgot-password', forgotPassword);
-server.post('/api/auth/reset-password', resetPassword);
+server.post('/api/auth/forgot-password', validateForgotPassword, forgotPassword);
+server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {

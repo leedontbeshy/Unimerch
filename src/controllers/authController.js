@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const ResetToken = require('../models/ResetToken');
 const { hashPassword, comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
@@ -6,8 +7,6 @@ const { addToBlacklist } = require('../middleware/auth');
 const { sendResetPasswordEmail } = require('../utils/email');
 const crypto = require('crypto');
 
-// Lưu reset tokens tạm thời (trong thực tế nên lưu vào database)
-const resetTokens = new Map();
 
 const register = async (req, res) => {
     try {
@@ -123,8 +122,8 @@ const logout = async (req, res) => {
     try {
         const token = req.token;
         
-        // Thêm token vào blacklist
-        addToBlacklist(token);
+        // Thêm token vào blacklist database
+        await addToBlacklist(token);
         
         return successResponse(res, null, 'Đăng xuất thành công');
     } catch (error) {
@@ -137,22 +136,17 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Kiểm tra user có tồn tại không
         const user = await User.findByEmail(email);
         if (!user) {
-            // Vẫn trả về success để không tiết lộ email có tồn tại hay không
             return successResponse(res, null, 'Nếu email tồn tại trong hệ thống, bạn sẽ nhận được email hướng dẫn reset mật khẩu');
         }
 
         // Tạo reset token
         const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 phút
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
 
-        // Lưu reset token
-        resetTokens.set(resetToken, {
-            email: user.email,
-            expiry: resetTokenExpiry
-        });
+        // Lưu reset token vào database
+        await ResetToken.create(user.email, resetToken, expiresAt);
 
         // Gửi email reset password
         try {
@@ -161,7 +155,7 @@ const forgotPassword = async (req, res) => {
         } catch (emailError) {
             console.error('Failed to send reset email:', emailError);
             // Xóa token nếu gửi email thất bại
-            resetTokens.delete(resetToken);
+            await ResetToken.deleteByToken(resetToken);
             return errorResponse(res, 'Không thể gửi email reset password', 500);
         }
 
@@ -177,16 +171,10 @@ const resetPassword = async (req, res) => {
     try {
         const { resetToken, newPassword } = req.body;
 
-        // Kiểm tra reset token
-        const tokenData = resetTokens.get(resetToken);
+        // Kiểm tra reset token trong database
+        const tokenData = await ResetToken.findByToken(resetToken);
         if (!tokenData) {
             return errorResponse(res, 'Reset token không hợp lệ hoặc đã hết hạn', 400);
-        }
-
-        // Kiểm tra token có hết hạn không
-        if (Date.now() > tokenData.expiry) {
-            resetTokens.delete(resetToken);
-            return errorResponse(res, 'Reset token đã hết hạn', 400);
         }
 
         // Mã hóa mật khẩu mới
@@ -199,7 +187,7 @@ const resetPassword = async (req, res) => {
         }
 
         // Xóa reset token
-        resetTokens.delete(resetToken);
+        await ResetToken.deleteByToken(resetToken);
 
         return successResponse(res, null, 'Mật khẩu đã được reset thành công. Bạn có thể đăng nhập với mật khẩu mới.');
 
