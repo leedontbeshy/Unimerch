@@ -4,7 +4,7 @@ const { errorResponse } = require('../utils/response');
 // Blacklist để lưu các token đã logout
 const tokenBlacklist = new Set();
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
         const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -22,7 +22,7 @@ const authenticateToken = (req, res, next) => {
         const decoded = verifyToken(token);
         req.user = decoded;
         req.token = token;
-        next();
+        await next();
     } catch (error) {
         console.error('Token verification error:', error);
         return errorResponse(res, 'Token không hợp lệ', 401);
