@@ -6,11 +6,38 @@ const { successResponse, errorResponse } = require('../utils/response');
 const { addToBlacklist } = require('../middleware/auth');
 const { sendResetPasswordEmail } = require('../utils/email');
 const crypto = require('crypto');
+const { Validator } = require('../utils/validator');
 
 
 const register = async (req, res) => {
     try {
         const { username, email, password, fullName, studentId, phone, address } = req.body;
+        
+        // THÊM VALIDATION ở đây
+        const errors = [];
+        
+        // Required fields
+        if (!username) errors.push('Username là bắt buộc');
+        if (!email) errors.push('Email là bắt buộc');
+        if (!password) errors.push('Mật khẩu là bắt buộc');
+        if (!fullName) errors.push('Họ tên là bắt buộc');
+        
+        // Email validation
+        if (email && !Validator.validateEmail(email)) {
+            errors.push('Email không hợp lệ');
+        }
+        
+        // Field validations
+        errors.push(...Validator.validateUsername(username));
+        errors.push(...Validator.validatePassword(password));
+        errors.push(...Validator.validateFullName(fullName));
+        errors.push(...Validator.validatePhone(phone));
+        errors.push(...Validator.validateStudentId(studentId));
+        errors.push(...Validator.validateAddress(address));
+        
+        if (errors.length > 0) {
+            return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
+        }
 
         // Kiểm tra email đã tồn tại
         const existingUserByEmail = await User.findByEmail(email);

@@ -15,20 +15,129 @@ class NodeServer {
         this.middlewareEngine.use(middleware);
     }
     
-    get(path, handler) {
-        this.router.get(path, handler);
+    // GET method với hỗ trợ multiple middlewares
+    get(...args) {
+        const path = args[0];
+        const handlers = args.slice(1); // Tất cả handlers và middlewares
+        
+        if (handlers.length === 1) {
+            // Chỉ có handler: server.get(path, handler)
+            this.router.get(path, handlers[0]);
+        } else {
+            // Có middlewares: server.get(path, middleware1, middleware2, handler)
+            const middlewares = handlers.slice(0, -1);
+            const finalHandler = handlers[handlers.length - 1];
+            
+            const combinedHandler = async (req, res) => {
+                let currentIndex = 0;
+                
+                const runNext = async () => {
+                    if (currentIndex >= middlewares.length) {
+                        // Tất cả middlewares đã chạy, chạy final handler
+                        return await finalHandler(req, res);
+                    }
+                    
+                    const middleware = middlewares[currentIndex++];
+                    await middleware(req, res, runNext);
+                };
+                
+                await runNext();
+            };
+            
+            this.router.get(path, combinedHandler);
+        }
     }
     
-    post(path, handler) {
-        this.router.post(path, handler);
+    // POST method với hỗ trợ multiple middlewares
+    post(...args) {
+        const path = args[0];
+        const handlers = args.slice(1);
+        
+        if (handlers.length === 1) {
+            // Chỉ có handler: server.post(path, handler)
+            this.router.post(path, handlers[0]);
+        } else {
+            // Có middlewares: server.post(path, middleware1, middleware2, handler)
+            const middlewares = handlers.slice(0, -1);
+            const finalHandler = handlers[handlers.length - 1];
+            
+            const combinedHandler = async (req, res) => {
+                let currentIndex = 0;
+                
+                const runNext = async () => {
+                    if (currentIndex >= middlewares.length) {
+                        return await finalHandler(req, res);
+                    }
+                    
+                    const middleware = middlewares[currentIndex++];
+                    await middleware(req, res, runNext);
+                };
+                
+                await runNext();
+            };
+            
+            this.router.post(path, combinedHandler);
+        }
     }
     
-    put(path, handler) {
-        this.router.put(path, handler);
+    // PUT method với hỗ trợ multiple middlewares
+    put(...args) {
+        const path = args[0];
+        const handlers = args.slice(1);
+        
+        if (handlers.length === 1) {
+            this.router.put(path, handlers[0]);
+        } else {
+            const middlewares = handlers.slice(0, -1);
+            const finalHandler = handlers[handlers.length - 1];
+            
+            const combinedHandler = async (req, res) => {
+                let currentIndex = 0;
+                
+                const runNext = async () => {
+                    if (currentIndex >= middlewares.length) {
+                        return await finalHandler(req, res);
+                    }
+                    
+                    const middleware = middlewares[currentIndex++];
+                    await middleware(req, res, runNext);
+                };
+                
+                await runNext();
+            };
+            
+            this.router.put(path, combinedHandler);
+        }
     }
     
-    delete(path, handler) {
-        this.router.delete(path, handler);
+    // DELETE method với hỗ trợ multiple middlewares
+    delete(...args) {
+        const path = args[0];
+        const handlers = args.slice(1);
+        
+        if (handlers.length === 1) {
+            this.router.delete(path, handlers[0]);
+        } else {
+            const middlewares = handlers.slice(0, -1);
+            const finalHandler = handlers[handlers.length - 1];
+            
+            const combinedHandler = async (req, res) => {
+                let currentIndex = 0;
+                
+                const runNext = async () => {
+                    if (currentIndex >= middlewares.length) {
+                        return await finalHandler(req, res);
+                    }
+                    
+                    const middleware = middlewares[currentIndex++];
+                    await middleware(req, res, runNext);
+                };
+                
+                await runNext();
+            };
+            
+            this.router.delete(path, combinedHandler);
+        }
     }
     
     useRouter(basePath, subRouter) {
@@ -61,7 +170,7 @@ class NodeServer {
             
             req.params = routeMatch.params;
             
-            // Execute middlewares and route handler
+            // Execute global middlewares and route handler
             await this.middlewareEngine.execute(req, res, routeMatch.handler);
             
         } catch (error) {

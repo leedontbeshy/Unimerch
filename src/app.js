@@ -23,7 +23,7 @@ server.get('/', (req, res) => {
     ResponseHelper.success(res, null, '🚀 UniMerch API is running with Node.js thuần!');
 });
 
-// Auth routes với validation
+// Auth routes với validation middlewares (VANILLA NODE.JS)
 server.post('/api/auth/register', validateRegister, register);
 server.post('/api/auth/login', validateLogin, login);
 server.post('/api/auth/logout', authenticateToken, logout);
@@ -32,7 +32,7 @@ server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
+    console.error('UncaughtException:', error);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
