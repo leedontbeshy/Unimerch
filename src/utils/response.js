@@ -1,17 +1,11 @@
 const successResponse = (res, data, message = 'Success', statusCode = 200) => {
-    return res.status(statusCode).json({
-        success: true,
-        message,
-        data
-    });
+    const ResponseHelper = require('../core/response');
+    return ResponseHelper.success(res, data, message, statusCode);
 };
 
 const errorResponse = (res, message = 'Error', statusCode = 400, errors = null) => {
-    return res.status(statusCode).json({
-        success: false,
-        message,
-        errors
-    });
+    const ResponseHelper = require('../core/response');
+    return ResponseHelper.error(res, message, statusCode, errors);
 };
 
 module.exports = {
