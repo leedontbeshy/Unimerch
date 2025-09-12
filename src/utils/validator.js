@@ -110,7 +110,7 @@ const validateRegister = async (req, res, next) => {
         return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
     }
     
-    await next();
+    next();
 };
 
 const validateLogin = async (req, res, next) => {
@@ -129,7 +129,7 @@ const validateLogin = async (req, res, next) => {
         return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
     }
     
-    await next();
+    next();
 };
 
 const validateForgotPassword = async (req, res, next) => {
@@ -146,7 +146,7 @@ const validateForgotPassword = async (req, res, next) => {
         return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
     }
     
-    await next();
+    next();
 };
 
 const validateResetPassword = async (req, res, next) => {
@@ -163,7 +163,7 @@ const validateResetPassword = async (req, res, next) => {
         return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
     }
     
-    await next();
+    next();
 };
 
 module.exports = {

@@ -149,9 +149,248 @@ const changePassword = async (req, res) => {
     }
 };
 
+// 4. GET /api/users (Admin only) - Lấy danh sách tất cả users
+const getAllUsers = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, search } = req.query;
+        const offset = (page - 1) * limit;
+
+        let users;
+        let totalUsers;
+
+        if (search) {
+            // Tìm kiếm user theo username, email, hoặc fullName
+            const { pool } = require('../../config/database');
+            const searchPattern = `%${search}%`;
+            
+            const usersResult = await pool.query(
+                `SELECT id, username, email, full_name, student_id, phone, address, role, created_at 
+                 FROM users 
+                 WHERE username ILIKE $1 OR email ILIKE $1 OR full_name ILIKE $1
+                 ORDER BY created_at DESC 
+                 LIMIT $2 OFFSET $3`,
+                [searchPattern, parseInt(limit), parseInt(offset)]
+            );
+            
+            const countResult = await pool.query(
+                `SELECT COUNT(*) as total 
+                 FROM users 
+                 WHERE username ILIKE $1 OR email ILIKE $1 OR full_name ILIKE $1`,
+                [searchPattern]
+            );
+            
+            users = usersResult.rows;
+            totalUsers = parseInt(countResult.rows[0].total);
+        } else {
+            // Lấy tất cả users
+            users = await User.getAll(parseInt(limit), parseInt(offset));
+            
+            const { pool } = require('../../config/database');
+            const countResult = await pool.query('SELECT COUNT(*) as total FROM users');
+            totalUsers = parseInt(countResult.rows[0].total);
+        }
+
+        // Format response data
+        const formattedUsers = users.map(user => ({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            fullName: user.full_name,
+            studentId: user.student_id,
+            phone: user.phone,
+            address: user.address,
+            role: user.role,
+            createdAt: user.created_at
+        }));
+
+        const pagination = {
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalUsers / limit),
+            totalUsers,
+            usersPerPage: parseInt(limit)
+        };
+
+        return successResponse(res, {
+            users: formattedUsers,
+            pagination
+        }, 'Lấy danh sách users thành công');
+
+    } catch (error) {
+        console.error('Get all users error:', error);
+        return errorResponse(res, 'Lỗi khi lấy danh sách users', 500);
+    }
+};
+
+// ... existing code ...
+
+// 5. GET /api/users/:id (Admin only) - Lấy thông tin user theo ID
+const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Validate ID
+        if (!id || isNaN(parseInt(id))) {
+            return errorResponse(res, 'ID người dùng không hợp lệ', 400);
+        }
+
+        const user = await User.findById(parseInt(id));
+
+        if (!user) {
+            return errorResponse(res, 'Không tìm thấy người dùng', 404);
+        }
+
+        // Format response data (không bao gồm password)
+        const userProfile = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            fullName: user.full_name,
+            studentId: user.student_id,
+            phone: user.phone,
+            address: user.address,
+            role: user.role,
+            createdAt: user.created_at
+        };
+
+        return successResponse(res, userProfile, 'Lấy thông tin user thành công');
+    } catch (error) {
+        console.error('Get user by ID error:', error);
+        return errorResponse(res, 'Lỗi khi lấy thông tin user', 500);
+    }
+};
+
+// ... existing code ...
+
+// 6. PUT /api/users/:id (Admin only) - Cập nhật thông tin user
+const updateUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fullName, studentId, phone, address, role } = req.body;
+
+        // Validate ID
+        if (!id || isNaN(parseInt(id))) {
+            return errorResponse(res, 'ID người dùng không hợp lệ', 400);
+        }
+
+        // Kiểm tra user có tồn tại không
+        const existingUser = await User.findById(parseInt(id));
+        if (!existingUser) {
+            return errorResponse(res, 'Không tìm thấy người dùng', 404);
+        }
+
+        // Validation dữ liệu
+        const { Validator } = require('../utils/validator');
+        const errors = [];
+
+        if (!fullName || fullName.trim().length === 0) {
+            errors.push('Tên đầy đủ không được để trống');
+        }
+
+        // Validate role nếu có
+        if (role && !['user', 'seller', 'admin'].includes(role)) {
+            errors.push('Role không hợp lệ. Chỉ được phép: user, seller, admin');
+        }
+
+        // Validate từng field
+        errors.push(...Validator.validateFullName(fullName));
+        errors.push(...Validator.validatePhone(phone));
+        errors.push(...Validator.validateStudentId(studentId));
+        errors.push(...Validator.validateAddress(address));
+
+        if (errors.length > 0) {
+            return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
+        }
+
+        // Cập nhật user (bao gồm role nếu có)
+        const { pool } = require('../../config/database');
+        const updateResult = await pool.query(
+            `UPDATE users 
+             SET full_name = $1, student_id = $2, phone = $3, address = $4, role = $5, updated_at = CURRENT_TIMESTAMP
+             WHERE id = $6 
+             RETURNING id, username, email, full_name, student_id, phone, address, role, updated_at`,
+            [
+                fullName.trim(),
+                studentId ? studentId.trim() : null,
+                phone ? phone.trim() : null,
+                address ? address.trim() : null,
+                role || existingUser.role, // Giữ role cũ nếu không cung cấp
+                parseInt(id)
+            ]
+        );
+
+        const updatedUser = updateResult.rows[0];
+        
+        // Format response
+        const userProfile = {
+            id: updatedUser.id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            fullName: updatedUser.full_name,
+            studentId: updatedUser.student_id,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            role: updatedUser.role,
+            updatedAt: updatedUser.updated_at
+        };
+
+        return successResponse(res, userProfile, 'Cập nhật thông tin user thành công');
+    } catch (error) {
+        console.error('Update user by ID error:', error);
+        return errorResponse(res, 'Lỗi khi cập nhật thông tin user', 500);
+    }
+};
+
+// ... existing code ...
+
+// 7. DELETE /api/users/:id (Admin only) - Xóa user
+const deleteUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const currentUserId = req.user.id;
+
+        // Validate ID
+        if (!id || isNaN(parseInt(id))) {
+            return errorResponse(res, 'ID người dùng không hợp lệ', 400);
+        }
+
+        // Không cho phép admin tự xóa chính mình
+        if (parseInt(id) === currentUserId) {
+            return errorResponse(res, 'Không thể xóa chính tài khoản của bạn', 400);
+        }
+
+        // Kiểm tra user có tồn tại không
+        const existingUser = await User.findById(parseInt(id));
+        if (!existingUser) {
+            return errorResponse(res, 'Không tìm thấy người dùng', 404);
+        }
+
+        // Xóa user
+        const success = await User.delete(parseInt(id));
+        
+        if (!success) {
+            return errorResponse(res, 'Không thể xóa người dùng', 500);
+        }
+
+        return successResponse(res, {
+            deletedUserId: parseInt(id),
+            deletedUserInfo: {
+                username: existingUser.username,
+                email: existingUser.email,
+                fullName: existingUser.full_name
+            }
+        }, 'Xóa user thành công');
+    } catch (error) {
+        console.error('Delete user by ID error:', error);
+        return errorResponse(res, 'Lỗi khi xóa user', 500);
+    }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
-    changePassword
+    changePassword,
+    getAllUsers,
+    getUserById,
+    updateUserById,
+    deleteUserById
 };
-

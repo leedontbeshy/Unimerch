@@ -11,7 +11,7 @@ const requireAdmin = async (req, res, next) => {
             return errorResponse(res, 'Không có quyền truy cập. Chỉ admin mới có thể thực hiện thao tác này', 403);
         }
 
-        await next();
+        next();
     } catch (error) {
         console.error('Role middleware error:', error);
         return errorResponse(res, 'Lỗi phân quyền', 500);
@@ -29,7 +29,7 @@ const requireSellerOrAdmin = async (req, res, next) => {
             return errorResponse(res, 'Không có quyền truy cập. Chỉ seller hoặc admin mới có thể thực hiện thao tác này', 403);
         }
 
-        await next();
+        next();
     } catch (error) {
         console.error('Role middleware error:', error);
         return errorResponse(res, 'Lỗi phân quyền', 500);

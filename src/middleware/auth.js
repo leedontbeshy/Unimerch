@@ -22,7 +22,7 @@ const authenticateToken = async (req, res, next) => {
         req.user = decoded;
         req.token = token;
         
-        await next();
+        next();
     } catch (error) {
         console.error('Token verification error:', error);
         return errorResponse(res, 'Token không hợp lệ', 401);

@@ -4,7 +4,7 @@ const { testConnection } = require('../config/database');
 const { authenticateToken } = require('./middleware/auth');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./utils/validator');
 const { requireAdmin } = require('./middleware/role');
-const { getProfile, updateProfile, changePassword } = require('./controllers/userController');
+const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
 
 require('dotenv').config();
 
@@ -37,7 +37,10 @@ server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 server.get('/api/users/profile', authenticateToken, getProfile);
 server.put('/api/users/profile', authenticateToken, updateProfile);
 server.put('/api/users/change-password', authenticateToken, changePassword);
-
+server.get('/api/users', authenticateToken,requireAdmin, getAllUsers);
+server.get('/api/users/:id', authenticateToken,requireAdmin, getUserById);
+server.put('/api/users/:id', authenticateToken,requireAdmin, updateUserById);
+server.delete('/api/users/:id', authenticateToken,requireAdmin, deleteUserById);
 // Error handling (global)
 process.on('uncaughtException', (error) => {
     console.error('UncaughtException:', error);
