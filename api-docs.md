@@ -190,8 +190,47 @@ Quên mật khẩu - gửi email reset.
 
 **Note:** Email sẽ chứa link reset có thời hạn 15 phút.
 
+## User Management Endpoints
 
+### GET /api/users/profile
+Lấy thông tin profile người dùng hiện tại.
 
+**Headers:**
+Authorization: Bearer <token>
 
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy thông tin profile thành công",
+  "data": {
+    "id": 1,
+    "username": "john_doe",
+    "email": "john@example.com",
+    "fullName": "Nguyễn Văn John",
+    "studentId": "SV2024001", 
+    "phone": "0987654321",
+    "address": "123 Đường ABC, Quận 1, TP.HCM",
+    "role": "user",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
 
+### PUT /api/users/profile
+Cập nhật thông tin profile người dùng hiện tại.
+
+**Headers:**
+Authorization: Bearer <token>
+
+**Request body:**
+```json
+{
+  "fullName": "Nguyễn Văn John",
+  "studentId": "SV2024001",
+  "phone": "0987654321",
+  "address": "123 Đường ABC, Quận 1, TP.HCM"
+}
+``` 
 

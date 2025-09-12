@@ -3,6 +3,9 @@ const { register, login, logout, forgotPassword, resetPassword } = require('./co
 const { testConnection } = require('../config/database');
 const { authenticateToken } = require('./middleware/auth');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./utils/validator');
+const { requireAdmin } = require('./middleware/role');
+const { getProfile, updateProfile } = require('./controllers/userController');
+
 require('dotenv').config();
 
 // Tạo server instance
@@ -29,6 +32,10 @@ server.post('/api/auth/login', validateLogin, login);
 server.post('/api/auth/logout', authenticateToken, logout);
 server.post('/api/auth/forgot-password', validateForgotPassword, forgotPassword);
 server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
+
+// User Management routes
+server.get('/api/users/profile', authenticateToken, getProfile);
+server.put('/api/users/profile', authenticateToken, updateProfile);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
