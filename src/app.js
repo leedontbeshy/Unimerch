@@ -37,9 +37,9 @@ server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 server.get('/api/users/profile', authenticateToken, getProfile);
 server.put('/api/users/profile', authenticateToken, updateProfile);
 server.put('/api/users/change-password', authenticateToken, changePassword);
-server.get('/api/users', authenticateToken,requireAdmin, getAllUsers);
-server.get('/api/users/:id', authenticateToken,requireAdmin, getUserById);
-server.put('/api/users/:id', authenticateToken,requireAdmin, updateUserById);
+server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
+server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
+server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
 server.delete('/api/users/:id', authenticateToken,requireAdmin, deleteUserById);
 // Error handling (global)
 process.on('uncaughtException', (error) => {
