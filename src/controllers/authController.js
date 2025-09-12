@@ -1,17 +1,43 @@
 const User = require('../models/User');
+const ResetToken = require('../models/ResetToken');
 const { hashPassword, comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
 const { addToBlacklist } = require('../middleware/auth');
 const { sendResetPasswordEmail } = require('../utils/email');
 const crypto = require('crypto');
+const { Validator } = require('../utils/validator');
 
-// Lưu reset tokens tạm thời (trong thực tế nên lưu vào database)
-const resetTokens = new Map();
 
 const register = async (req, res) => {
     try {
         const { username, email, password, fullName, studentId, phone, address } = req.body;
+        
+        // THÊM VALIDATION ở đây
+        const errors = [];
+        
+        // Required fields
+        if (!username) errors.push('Username là bắt buộc');
+        if (!email) errors.push('Email là bắt buộc');
+        if (!password) errors.push('Mật khẩu là bắt buộc');
+        if (!fullName) errors.push('Họ tên là bắt buộc');
+        
+        // Email validation
+        if (email && !Validator.validateEmail(email)) {
+            errors.push('Email không hợp lệ');
+        }
+        
+        // Field validations
+        errors.push(...Validator.validateUsername(username));
+        errors.push(...Validator.validatePassword(password));
+        errors.push(...Validator.validateFullName(fullName));
+        errors.push(...Validator.validatePhone(phone));
+        errors.push(...Validator.validateStudentId(studentId));
+        errors.push(...Validator.validateAddress(address));
+        
+        if (errors.length > 0) {
+            return errorResponse(res, 'Dữ liệu không hợp lệ', 400, errors);
+        }
 
         // Kiểm tra email đã tồn tại
         const existingUserByEmail = await User.findByEmail(email);
@@ -123,8 +149,8 @@ const logout = async (req, res) => {
     try {
         const token = req.token;
         
-        // Thêm token vào blacklist
-        addToBlacklist(token);
+        // Thêm token vào blacklist database
+        await addToBlacklist(token);
         
         return successResponse(res, null, 'Đăng xuất thành công');
     } catch (error) {
@@ -137,22 +163,17 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Kiểm tra user có tồn tại không
         const user = await User.findByEmail(email);
         if (!user) {
-            // Vẫn trả về success để không tiết lộ email có tồn tại hay không
             return successResponse(res, null, 'Nếu email tồn tại trong hệ thống, bạn sẽ nhận được email hướng dẫn reset mật khẩu');
         }
 
         // Tạo reset token
         const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 phút
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
 
-        // Lưu reset token
-        resetTokens.set(resetToken, {
-            email: user.email,
-            expiry: resetTokenExpiry
-        });
+        // Lưu reset token vào database
+        await ResetToken.create(user.email, resetToken, expiresAt);
 
         // Gửi email reset password
         try {
@@ -161,7 +182,7 @@ const forgotPassword = async (req, res) => {
         } catch (emailError) {
             console.error('Failed to send reset email:', emailError);
             // Xóa token nếu gửi email thất bại
-            resetTokens.delete(resetToken);
+            await ResetToken.deleteByToken(resetToken);
             return errorResponse(res, 'Không thể gửi email reset password', 500);
         }
 
@@ -177,16 +198,10 @@ const resetPassword = async (req, res) => {
     try {
         const { resetToken, newPassword } = req.body;
 
-        // Kiểm tra reset token
-        const tokenData = resetTokens.get(resetToken);
+        // Kiểm tra reset token trong database
+        const tokenData = await ResetToken.findByToken(resetToken);
         if (!tokenData) {
             return errorResponse(res, 'Reset token không hợp lệ hoặc đã hết hạn', 400);
-        }
-
-        // Kiểm tra token có hết hạn không
-        if (Date.now() > tokenData.expiry) {
-            resetTokens.delete(resetToken);
-            return errorResponse(res, 'Reset token đã hết hạn', 400);
         }
 
         // Mã hóa mật khẩu mới
@@ -199,7 +214,7 @@ const resetPassword = async (req, res) => {
         }
 
         // Xóa reset token
-        resetTokens.delete(resetToken);
+        await ResetToken.deleteByToken(resetToken);
 
         return successResponse(res, null, 'Mật khẩu đã được reset thành công. Bạn có thể đăng nhập với mật khẩu mới.');
 

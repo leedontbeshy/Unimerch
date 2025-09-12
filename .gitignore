@@ -16,6 +16,7 @@ logs/
 # Editor
 .vscode/
 .idea/
+.cursor/
 *.sublime-workspace
 *.sublime-project
 

@@ -139,3 +139,54 @@ CREATE INDEX idx_products_status ON products(status);
 CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_reviews_product_id ON reviews(product_id);
+
+-- Thêm 2 bảng này vào database PostgreSQL hiện tại của bạn
+
+-- Bảng lưu reset password tokens
+CREATE TABLE reset_tokens (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng lưu blacklisted JWT tokens 
+CREATE TABLE blacklisted_tokens (
+    id SERIAL PRIMARY KEY,
+    token TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index cho performance
+CREATE INDEX idx_reset_tokens_token ON reset_tokens(token);
+CREATE INDEX idx_reset_tokens_email ON reset_tokens(email);
+CREATE INDEX idx_reset_tokens_expires ON reset_tokens(expires_at);
+CREATE INDEX idx_blacklisted_tokens_token ON blacklisted_tokens(token);
+CREATE INDEX idx_blacklisted_tokens_expires ON blacklisted_tokens(expires_at);
+
+-- Trigger cho updated_at nếu cần (optional)
+CREATE TRIGGER update_reset_tokens_updated_at 
+    BEFORE UPDATE ON reset_tokens 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_blacklisted_tokens_updated_at 
+    BEFORE UPDATE ON blacklisted_tokens 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+
+2 bảng này không có foreign key với bảng khác. Điều này KHÔNG có vấn đề gì và thực sự là thiết kế đúng cho các lý do sau:
+1. Bảng reset_tokens - Tại sao không FK với users:
+✅ Lý do thiết kế:
+Email có thể không tồn tại: Người dùng có thể nhập email bất kỳ để thử reset password
+User có thể bị xóa: Sau khi tạo reset token, admin có thể xóa user, nhưng token vẫn cần tồn tại cho đến khi expire
+Bảo mật: Không tiết lộ email nào có tồn tại trong hệ thống
+
+
+2. Bảng blacklisted_tokens - Tại sao không FK:
+✅ Lý do thiết kế:
+Token chứa đầy đủ info: JWT đã có user_id trong payload
+Independence: Token blacklist độc lập với user management
+Performance: Không cần JOIN với bảng users khi check blacklist
