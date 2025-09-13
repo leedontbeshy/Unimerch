@@ -1,5 +1,4 @@
 -- postgres_schema.sql
--- Converted from MySQL schema in db.txt
 
 -- Bảng người dùng
 CREATE TABLE users (
@@ -140,7 +139,6 @@ CREATE INDEX idx_orders_user_id ON orders(user_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_reviews_product_id ON reviews(product_id);
 
--- Thêm 2 bảng này vào database PostgreSQL hiện tại của bạn
 
 -- Bảng lưu reset password tokens
 CREATE TABLE reset_tokens (
@@ -177,7 +175,7 @@ CREATE TRIGGER update_blacklisted_tokens_updated_at
 
 
 
-2 bảng này không có foreign key với bảng khác. Điều này KHÔNG có vấn đề gì và thực sự là thiết kế đúng cho các lý do sau:
+2 bảng này không có foreign key với bảng khác nhưng KHÔNG có vấn đề gì và thực sự là thiết kế đúng cho các lý do sau:
 1. Bảng reset_tokens - Tại sao không FK với users:
 ✅ Lý do thiết kế:
 Email có thể không tồn tại: Người dùng có thể nhập email bất kỳ để thử reset password
