@@ -5,7 +5,8 @@ const { authenticateToken } = require('./middleware/auth');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./utils/validator');
 const { requireAdmin } = require('./middleware/role');
 const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
-
+const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
+const { requireSellerOrAdmin } = require('./middleware/role');
 require('dotenv').config();
 
 // Tạo server instance
@@ -41,6 +42,15 @@ server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
 server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
 server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
 server.delete('/api/users/:id', authenticateToken,requireAdmin, deleteUserById);
+
+// Category routes
+
+server.get('/api/categories', getCategories);
+server.get('/api/categories/:id', getCategoryById);
+server.post('/api/categories', authenticateToken, requireSellerOrAdmin, createCategory);
+server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, updateCategory);
+server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCategory);
+
 // Error handling (global)
 process.on('uncaughtException', (error) => {
     console.error('UncaughtException:', error);
