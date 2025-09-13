@@ -41,7 +41,7 @@ server.put('/api/users/change-password', authenticateToken, changePassword);
 server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
 server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
 server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
-server.delete('/api/users/:id', authenticateToken,requireAdmin, deleteUserById);
+server.delete('/api/users/:id', authenticateToken, requireAdmin, deleteUserById);
 
 // Category routes
 
