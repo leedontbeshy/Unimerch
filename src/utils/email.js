@@ -7,7 +7,7 @@ const sendResetPasswordEmail = async (email, resetToken) => {
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
         
         const { data, error } = await resend.emails.send({
-            from: 'UniMerch <noreply@unimerch.space>', // Dùng domain mặc định của Resend
+            from: 'UniMerch <noreply@unimerch.space>', 
             to: [email],
             subject: 'Reset mật khẩu - UniMerch',
             html: `
