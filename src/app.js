@@ -51,6 +51,10 @@ server.post('/api/categories', authenticateToken, requireSellerOrAdmin, createCa
 server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, updateCategory);
 server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCategory);
 
+
+// Product routes
+
+
 // Error handling (global)
 process.on('uncaughtException', (error) => {
     console.error('UncaughtException:', error);
