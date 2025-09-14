@@ -7,6 +7,7 @@ const { requireAdmin } = require('./middleware/role');
 const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
 const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
 const { requireSellerOrAdmin } = require('./middleware/role');
+const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts } = require('./controllers/productController');
 require('dotenv').config();
 
 // Tạo server instance
@@ -53,7 +54,13 @@ server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCate
 
 
 // Product routes
-
+server.get('/api/products', getProducts);
+server.get('/api/products/featured', getFeaturedProducts);
+server.get('/api/products/seller/:seller_id', getProductsBySeller);
+server.get('/api/products/:id', getProductById);
+server.post('/api/products', authenticateToken, requireSellerOrAdmin, createProduct);
+server.put('/api/products/:id', authenticateToken, requireSellerOrAdmin, updateProduct);
+server.delete('/api/products/:id', authenticateToken, requireSellerOrAdmin, deleteProduct);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
