@@ -457,6 +457,182 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 
 ---
 
+## Product Management Endpoints
+
+### GET /api/products
+Lấy danh sách sản phẩm.
+### GET /api/products/featured
+Lấy sản phẩm nổi bật.
+### GET /api/products/seller/:seller_id
+Lấy sản phẩm của seller.
+### GET /api/products/:id
+Lấy thông tin chi tiết sản phẩm.
+### POST /api/products
+Tạo sản phẩm mới.
+### PUT /api/products/:id
+Cập nhật sản phẩm.
+### DELETE /api/products/:id
+Xóa sản phẩm.
+
+
+## Endpoints
+
+### 1. GET /api/products
+**Lấy danh sách sản phẩm**
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số sản phẩm mỗi trang (default: 20)
+- `category_id` (number, optional): Lọc theo danh mục
+- `status` (string, optional): Lọc theo trạng thái (available, out_of_stock, discontinued)
+- `search` (string, optional): Tìm kiếm theo tên hoặc mô tả
+- `min_price` (number, optional): Giá tối thiểu
+- `max_price` (number, optional): Giá tối đa
+- `seller_id` (number, optional): Lọc theo seller
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Lấy danh sách sản phẩm thành công",
+  "data": {
+    "products": [...],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 100,
+      "totalPages": 5
+    }
+  }
+}
+```
+
+### 2. GET /api/products/:id
+**Lấy thông tin chi tiết sản phẩm**
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Lấy thông tin sản phẩm thành công",
+  "data": {
+    "id": 1,
+    "name": "iPhone 15",
+    "description": "Điện thoại iPhone 15 mới nhất",
+    "price": 25000000,
+    "discount_price": 23000000,
+    "quantity": 10,
+    "image_url": "https://example.com/iphone15.jpg",
+    "status": "available",
+    "category_name": "Điện thoại",
+    "seller_name": "seller1",
+    "seller_full_name": "Nguyễn Văn A"
+  }
+}
+```
+
+### 3. POST /api/products (Auth Required - Seller/Admin)
+**Tạo sản phẩm mới**
+
+**Request Body:**
+```json
+{
+  "name": "iPhone 15",
+  "description": "Điện thoại iPhone 15 mới nhất",
+  "price": 25000000,
+  "discount_price": 23000000,
+  "quantity": 10,
+  "image_url": "https://example.com/iphone15.jpg",
+  "category_id": 1
+}
+```
+
+### 4. PUT /api/products/:id (Auth Required - Seller/Admin)
+**Cập nhật sản phẩm**
+
+**Request Body:** (tương tự POST, có thêm status)
+```json
+{
+  "name": "iPhone 15 Pro",
+  "description": "Điện thoại iPhone 15 Pro",
+  "price": 30000000,
+  "discount_price": 28000000,
+  "quantity": 5,
+  "image_url": "https://example.com/iphone15pro.jpg",
+  "category_id": 1,
+  "status": "available"
+}
+```
+
+### 5. DELETE /api/products/:id (Auth Required - Seller/Admin)
+**Xóa sản phẩm**
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Xóa sản phẩm thành công",
+  "data": null
+}
+```
+
+### 6. GET /api/products/seller/:seller_id
+**Lấy sản phẩm của seller**
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại
+- `limit` (number, optional): Số sản phẩm mỗi trang
+- `status` (string, optional): Lọc theo trạng thái
+
+### 7. GET /api/products/featured
+**Lấy sản phẩm nổi bật**
+
+**Query Parameters:**
+- `limit` (number, optional): Số lượng sản phẩm (default: 10)
+
+## Test với Postman
+
+### Setup Environment
+1. Tạo environment với variable `baseURL` = `http://localhost:3000`
+2. Tạo variable `token` để lưu JWT token
+
+### Test Cases
+
+1. **Test GET all products:**
+   - Method: GET
+   - URL: `{{baseURL}}/api/products`
+   - Query: `?page=1&limit=10&status=available`
+
+2. **Test GET product by ID:**
+   - Method: GET
+   - URL: `{{baseURL}}/api/products/1`
+
+3. **Test CREATE product (cần login trước):**
+   - Method: POST
+   - URL: `{{baseURL}}/api/products`
+   - Headers: `Authorization: Bearer {{token}}`
+   - Body (JSON): Xem example ở trên
+
+4. **Test UPDATE product:**
+   - Method: PUT
+   - URL: `{{baseURL}}/api/products/1`
+   - Headers: `Authorization: Bearer {{token}}`
+   - Body (JSON): Xem example ở trên
+
+5. **Test DELETE product:**
+   - Method: DELETE
+   - URL: `{{baseURL}}/api/products/1`
+   - Headers: `Authorization: Bearer {{token}}`
+
+6. **Test GET products by seller:**
+   - Method: GET
+   - URL: `{{baseURL}}/api/products/seller/1`
+
+7. **Test GET featured products:**
+   - Method: GET
+   - URL: `{{baseURL}}/api/products/featured?limit=5`
+
+
 ## 📝 Notes
 
 - **JWT Token**: Có thời hạn 7 ngày
