@@ -41,7 +41,7 @@ server.put('/api/users/change-password', authenticateToken, changePassword);
 server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
 server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
 server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
-server.delete('/api/users/:id', authenticateToken,requireAdmin, deleteUserById);
+server.delete('/api/users/:id', authenticateToken, requireAdmin, deleteUserById);
 
 // Category routes
 
@@ -50,6 +50,10 @@ server.get('/api/categories/:id', getCategoryById);
 server.post('/api/categories', authenticateToken, requireSellerOrAdmin, createCategory);
 server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, updateCategory);
 server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCategory);
+
+
+// Product routes
+
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
