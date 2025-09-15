@@ -34,9 +34,9 @@ const testConnection = async () => {
         console.log('✅ PostgreSQL Database connected successfully');
 
         // Query test: lấy tất cả users (PostgreSQL format)
-        const result = await client.query('SELECT * FROM users LIMIT 1 ');
-        console.log('Query users thành công, row count:', result.rowCount);
-        console.log('Sample data:', result.rows);
+        //const result = await client.query('SELECT * FROM users LIMIT 1 ');
+        //console.log('Query users thành công, row count:', result.rowCount);
+        //console.log('Sample data:', result.rows);
 
     } catch (error) {
         console.error('Database connection failed:', error.message);
