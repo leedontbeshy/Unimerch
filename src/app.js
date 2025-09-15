@@ -25,7 +25,7 @@ server.use(async (req, res, next) => {
 // Basic route
 server.get('/', (req, res) => {
     const ResponseHelper = require('./core/response');
-    ResponseHelper.success(res, null, '🚀 UniMerch API is running with Node.js thuần!');
+    ResponseHelper.success(res, null, '🚀 UniMerch API is running');
 });
 
 // Auth routes với validation middlewares (VANILLA NODE.JS)
