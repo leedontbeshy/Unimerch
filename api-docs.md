@@ -1,31 +1,66 @@
 # UniMerch API Documentation
 
-## 📋 Table of Contents
-- [Authentication Endpoints](#authentication-endpoints)
-- [User Management Endpoints](#user-management-endpoints)
-- [Common Error Responses](#common-error-responses)
+**Version:** 1.0  
+**Base URL:** `http://localhost:3000` | `https://api.unimerch.space`  
+**Content-Type:** `application/json`
+
+## Overview
+
+UniMerch is a comprehensive e-commerce API platform designed for university merchandise trading. This documentation provides detailed information about all available endpoints, authentication requirements, request/response formats, and error handling.
+
+### Key Features
+- 🔐 JWT-based authentication with role-based access control
+- 👥 User management (Admin, Seller, Customer roles)
+- 🛍️ Product catalog management
+- 🛒 Shopping cart functionality
+- 📦 Order processing and tracking
+- 💳 Payment processing with multiple methods
+- 📊 Analytics and reporting
 
 ---
 
-## Authentication Endpoints
+## 📋 Table of Contents
 
-### POST /api/auth/register
-Đăng ký tài khoản mới.
+### Core APIs
+- [Authentication](#authentication)
+- [User Management](#user-management)
+- [Product Management](#product-management)
+- [Shopping Cart](#shopping-cart)
+- [Order Management](#order-management)
+- [Payment Management](#payment-management)
 
-**Request:**
+### Reference
+- [Error Responses](#error-responses)
+- [Testing Guide](#testing-guide)
+- [Status Codes](#status-codes)
+
+---
+
+## Authentication
+
+### Register User
+
+**Endpoint:** `POST /api/auth/register`  
+**Description:** Create a new user account  
+**Authentication:** None required  
+
+#### Request Body
+
 ```json
 {
   "username": "john_doe",
   "email": "john@example.com",
   "password": "MyPassword123",
   "fullName": "Nguyễn Văn John",
-  "studentId": "SV2024001",
-  "phone": "0987654321",
-  "address": "123 Đường ABC, Quận 1, TP.HCM"
+  "studentId": "SV2024001",        // Optional
+  "phone": "0987654321",           // Optional
+  "address": "123 Đường ABC, Quận 1, TP.HCM"  // Optional
 }
 ```
 
-**Response (201):**
+#### Response
+
+**Success (201 Created):**
 ```json
 {
   "success": true,
@@ -48,10 +83,14 @@
 
 ---
 
-### POST /api/auth/login
-Đăng nhập tài khoản.
+### Login User
 
-**Request:**
+**Endpoint:** `POST /api/auth/login`  
+**Description:** Authenticate user and receive JWT token  
+**Authentication:** None required  
+
+#### Request Body
+
 ```json
 {
   "email": "john@example.com",
@@ -59,7 +98,9 @@
 }
 ```
 
-**Response (200):**
+#### Response
+
+**Success (200 OK):**
 ```json
 {
   "success": true,
@@ -70,9 +111,6 @@
       "username": "john_doe",
       "email": "john@example.com",
       "fullName": "Nguyễn Văn John",
-      "studentId": "SV2024001",
-      "phone": "0987654321",
-      "address": "123 Đường ABC, Quận 1, TP.HCM",
       "role": "user"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -82,15 +120,21 @@
 
 ---
 
-### POST /api/auth/logout
-Đăng xuất tài khoản.
+### Logout User
 
-**Headers:**
+**Endpoint:** `POST /api/auth/logout`  
+**Description:** Invalidate current JWT token  
+**Authentication:** Bearer token required  
+
+#### Headers
+
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-**Response (200):**
+#### Response
+
+**Success (200 OK):**
 ```json
 {
   "success": true,
@@ -101,17 +145,23 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-### POST /api/auth/forgot-password
-Quên mật khẩu - gửi email reset.
+### Forgot Password
 
-**Request:**
+**Endpoint:** `POST /api/auth/forgot-password`  
+**Description:** Send password reset email  
+**Authentication:** None required  
+
+#### Request Body
+
 ```json
 {
   "email": "john@example.com"
 }
 ```
 
-**Response (200):**
+#### Response
+
+**Success (200 OK):**
 ```json
 {
   "success": true,
@@ -120,27 +170,27 @@ Quên mật khẩu - gửi email reset.
 }
 ```
 
-**Note:** Email sẽ chứa link reset có thời hạn 15 phút.
+> **Note:** Reset link expires in 15 minutes
 
 ---
 
-## User Management Endpoints
+## User Management
 
-### 🔐 User Profile APIs (Authentication Required)
+### � User Profile APIs
 
-#### GET /api/users/profile
-Lấy thông tin profile người dùng hiện tại.
+> **Authentication Required:** Bearer token
+
+#### Get Current User Profile
+
+**Endpoint:** `GET /api/users/profile`  
+**Description:** Retrieve current user's profile information  
 
 **Headers:**
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `http://localhost:3000/api/users/profile`
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -159,10 +209,10 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
----
+#### Update User Profile
 
-#### PUT /api/users/profile
-Cập nhật thông tin profile người dùng hiện tại.
+**Endpoint:** `PUT /api/users/profile`  
+**Description:** Update current user's profile information  
 
 **Headers:**
 ```
@@ -170,11 +220,7 @@ Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
 ```
 
-**Postman Setup:**
-- Method: `PUT`
-- URL: `http://localhost:3000/api/users/profile`
-
-**Request:**
+**Request Body:**
 ```json
 {
   "fullName": "Nguyễn Văn An",
@@ -184,7 +230,7 @@ Content-Type: application/json
 }
 ```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -203,10 +249,10 @@ Content-Type: application/json
 }
 ```
 
----
+#### Change Password
 
-#### PUT /api/users/change-password
-Đổi mật khẩu người dùng hiện tại.
+**Endpoint:** `PUT /api/users/change-password`  
+**Description:** Change user's password  
 
 **Headers:**
 ```
@@ -214,11 +260,7 @@ Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
 ```
 
-**Postman Setup:**
-- Method: `PUT`
-- URL: `http://localhost:3000/api/users/change-password`
-
-**Request:**
+**Request Body:**
 ```json
 {
   "currentPassword": "MyOldPassword123",
@@ -227,7 +269,7 @@ Content-Type: application/json
 }
 ```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -238,10 +280,14 @@ Content-Type: application/json
 
 ---
 
-### 👨‍💼 Admin APIs (Admin Role Required)
+### 👨‍💼 Admin APIs
 
-#### GET /api/users
-Lấy danh sách tất cả users (Admin only).
+> **Authentication Required:** Admin role + Bearer token
+
+#### List All Users
+
+**Endpoint:** `GET /api/users`  
+**Description:** Get paginated list of all users (Admin only)  
 
 **Headers:**
 ```
@@ -249,15 +295,11 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Query Parameters:**
-- `page` (optional): Số trang, mặc định = 1
-- `limit` (optional): Số users per page, mặc định = 20
-- `search` (optional): Tìm kiếm theo username, email, hoặc fullName
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Items per page (default: 20)
+- `search` (string, optional): Search by username, email, or fullName
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `http://localhost:3000/api/users?page=1&limit=10&search=john`
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -286,21 +328,12 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 }
 ```
 
----
+#### Get User by ID
 
-#### GET /api/users/:id
-Lấy thông tin user theo ID (Admin only).
+**Endpoint:** `GET /api/users/:id`  
+**Description:** Get user information by ID (Admin only)  
 
-**Headers:**
-```
-Authorization: Bearer <ADMIN_JWT_TOKEN>
-```
-
-**Postman Setup:**
-- Method: `GET`
-- URL: `http://localhost:3000/api/users/1`
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -310,31 +343,18 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
     "username": "john_doe",
     "email": "john@example.com",
     "fullName": "Nguyễn Văn John",
-    "studentId": "SV2024001",
-    "phone": "0987654321",
-    "address": "123 Đường ABC, Quận 1, TP.HCM",
     "role": "user",
     "createdAt": "2025-01-01T00:00:00.000Z"
   }
 }
 ```
 
----
+#### Update User by ID
 
-#### PUT /api/users/:id
-Cập nhật thông tin user theo ID (Admin only).
+**Endpoint:** `PUT /api/users/:id`  
+**Description:** Update user information by ID (Admin only)  
 
-**Headers:**
-```
-Authorization: Bearer <ADMIN_JWT_TOKEN>
-Content-Type: application/json
-```
-
-**Postman Setup:**
-- Method: `PUT`
-- URL: `http://localhost:3000/api/users/1`
-
-**Request:**
+**Request Body:**
 ```json
 {
   "fullName": "Nguyễn Văn An Updated",
@@ -345,40 +365,12 @@ Content-Type: application/json
 }
 ```
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Cập nhật thông tin user thành công",
-  "data": {
-    "id": 1,
-    "username": "john_doe",
-    "email": "john@example.com",
-    "fullName": "Nguyễn Văn An Updated",
-    "studentId": "SV2024001",
-    "phone": "0123456789",
-    "address": "456 Đường XYZ, Quận 2, TP.HCM",
-    "role": "seller",
-    "updatedAt": "2025-01-01T12:00:00.000Z"
-  }
-}
-```
+#### Delete User
 
----
+**Endpoint:** `DELETE /api/users/:id`  
+**Description:** Delete user by ID (Admin only)  
 
-#### DELETE /api/users/:id
-Xóa user theo ID (Admin only).
-
-**Headers:**
-```
-Authorization: Bearer <ADMIN_JWT_TOKEN>
-```
-
-**Postman Setup:**
-- Method: `DELETE`
-- URL: `http://localhost:3000/api/users/1`
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -394,109 +386,48 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 }
 ```
 
-**Error Response (400):**
-```json
-{
-  "success": false,
-  "message": "Không thể xóa chính tài khoản của bạn"
-}
-```
-
 ---
 
-## Common Error Responses
+## Product Management
 
-### 400 - Validation Error
-```json
-{
-  "success": false,
-  "message": "Dữ liệu không hợp lệ",
-  "errors": ["Tên đầy đủ không được để trống", "Email không hợp lệ"]
-}
-```
+### 📦 Product Endpoints
 
-### 401 - Authentication Error
-```json
-{
-  "success": false,
-  "message": "Token không được cung cấp"
-}
-```
+#### List Products
 
-### 403 - Authorization Error
-```json
-{
-  "success": false,
-  "message": "Không có quyền truy cập. Chỉ admin mới có thể thực hiện thao tác này"
-}
-```
-
-### 404 - Not Found
-```json
-{
-  "success": false,
-  "message": "Không tìm thấy người dùng"
-}
-```
-
-### 409 - Conflict
-```json
-{
-  "success": false,
-  "message": "Email đã được sử dụng"
-}
-```
-
-### 500 - Server Error
-```json
-{
-  "success": false,
-  "message": "Lỗi server"
-}
-```
-
----
-
-## Product Management Endpoints
-
-### GET /api/products
-Lấy danh sách sản phẩm.
-### GET /api/products/featured
-Lấy sản phẩm nổi bật.
-### GET /api/products/seller/:seller_id
-Lấy sản phẩm của seller.
-### GET /api/products/:id
-Lấy thông tin chi tiết sản phẩm.
-### POST /api/products
-Tạo sản phẩm mới.
-### PUT /api/products/:id
-Cập nhật sản phẩm.
-### DELETE /api/products/:id
-Xóa sản phẩm.
-
-
-## Endpoints
-
-### 1. GET /api/products
-**Lấy danh sách sản phẩm**
+**Endpoint:** `GET /api/products`  
+**Description:** Get paginated list of products with filtering options  
+**Authentication:** None required  
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số sản phẩm mỗi trang (default: 20)
-- `category_id` (number, optional): Lọc theo danh mục
-- `status` (string, optional): Lọc theo trạng thái (available, out_of_stock, discontinued)
-- `search` (string, optional): Tìm kiếm theo tên hoặc mô tả
-- `min_price` (number, optional): Giá tối thiểu
-- `max_price` (number, optional): Giá tối đa
-- `seller_id` (number, optional): Lọc theo seller
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Items per page (default: 20)
+- `category_id` (number, optional): Filter by category
+- `status` (string, optional): Filter by status (`available`, `out_of_stock`, `discontinued`)
+- `search` (string, optional): Search by name or description
+- `min_price` (number, optional): Minimum price filter
+- `max_price` (number, optional): Maximum price filter
+- `seller_id` (number, optional): Filter by seller
 
-**Response:**
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Lấy danh sách sản phẩm thành công",
   "data": {
-    "products": [...],
+    "products": [
+      {
+        "id": 1,
+        "name": "iPhone 15",
+        "description": "Điện thoại iPhone 15 mới nhất",
+        "price": 25000000,
+        "discount_price": 23000000,
+        "quantity": 10,
+        "image_url": "https://example.com/iphone15.jpg",
+        "status": "available",
+        "category_name": "Điện thoại",
+        "seller_name": "seller1"
+      }
+    ],
     "pagination": {
       "page": 1,
       "limit": 20,
@@ -507,10 +438,13 @@ Xóa sản phẩm.
 }
 ```
 
-### 2. GET /api/products/:id
-**Lấy thông tin chi tiết sản phẩm**
+#### Get Product Details
 
-**Response:**
+**Endpoint:** `GET /api/products/:id`  
+**Description:** Get detailed information about a specific product  
+**Authentication:** None required  
+
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -531,8 +465,42 @@ Xóa sản phẩm.
 }
 ```
 
-### 3. POST /api/products (Auth Required - Seller/Admin)
-**Tạo sản phẩm mới**
+#### Get Featured Products
+
+**Endpoint:** `GET /api/products/featured`  
+**Description:** Get list of featured products  
+**Authentication:** None required  
+
+**Query Parameters:**
+- `limit` (number, optional): Number of products (default: 10)
+
+#### Get Products by Seller
+
+**Endpoint:** `GET /api/products/seller/:seller_id`  
+**Description:** Get products by specific seller  
+**Authentication:** None required  
+
+**Query Parameters:**
+- `page` (number, optional): Page number
+- `limit` (number, optional): Items per page
+- `status` (string, optional): Filter by status
+
+---
+
+### 🛍️ Seller/Admin Product APIs
+
+> **Authentication Required:** Seller/Admin role + Bearer token
+
+#### Create Product
+
+**Endpoint:** `POST /api/products`  
+**Description:** Create a new product (Seller/Admin only)  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Request Body:**
 ```json
@@ -547,10 +515,18 @@ Xóa sản phẩm.
 }
 ```
 
-### 4. PUT /api/products/:id (Auth Required - Seller/Admin)
-**Cập nhật sản phẩm**
+#### Update Product
 
-**Request Body:** (tương tự POST, có thêm status)
+**Endpoint:** `PUT /api/products/:id`  
+**Description:** Update product information (Seller/Admin only)  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
 ```json
 {
   "name": "iPhone 15 Pro",
@@ -564,10 +540,17 @@ Xóa sản phẩm.
 }
 ```
 
-### 5. DELETE /api/products/:id (Auth Required - Seller/Admin)
-**Xóa sản phẩm**
+#### Delete Product
 
-**Response:**
+**Endpoint:** `DELETE /api/products/:id`  
+**Description:** Delete a product (Seller/Admin only)  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -576,87 +559,255 @@ Xóa sản phẩm.
 }
 ```
 
-### 6. GET /api/products/seller/:seller_id
-**Lấy sản phẩm của seller**
+### 🛒 Cart Management APIs
 
-**Query Parameters:**
-- `page` (number, optional): Trang hiện tại
-- `limit` (number, optional): Số sản phẩm mỗi trang
-- `status` (string, optional): Lọc theo trạng thái
+> **Authentication Required:** Bearer token
 
-### 7. GET /api/products/featured
-**Lấy sản phẩm nổi bật**
+#### Add to Cart
 
-**Query Parameters:**
-- `limit` (number, optional): Số lượng sản phẩm (default: 10)
+**Endpoint:** `POST /api/cart/add`  
+**Description:** Add product to shopping cart  
 
-## Test với Postman
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
-### Setup Environment
-1. Tạo environment với variable `baseURL` = `http://localhost:3000`
-2. Tạo variable `token` để lưu JWT token
+**Request Body:**
+```json
+{
+  "product_id": 1,
+  "quantity": 2
+}
+```
 
-### Test Cases
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Thêm sản phẩm vào giỏ hàng thành công",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "product_id": 1,
+    "quantity": 2,
+    "product_name": "iPhone 15",
+    "product_price": 25000000,
+    "product_discount_price": 23000000
+  }
+}
+```
 
-1. **Test GET all products:**
-   - Method: GET
-   - URL: `{{baseURL}}/api/products`
-   - Query: `?page=1&limit=10&status=available`
+#### Get Cart Items
 
-2. **Test GET product by ID:**
-   - Method: GET
-   - URL: `{{baseURL}}/api/products/1`
+**Endpoint:** `GET /api/cart`  
+**Description:** Get all items in user's shopping cart  
 
-3. **Test CREATE product (cần login trước):**
-   - Method: POST
-   - URL: `{{baseURL}}/api/products`
-   - Headers: `Authorization: Bearer {{token}}`
-   - Body (JSON): Xem example ở trên
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
 
-4. **Test UPDATE product:**
-   - Method: PUT
-   - URL: `{{baseURL}}/api/products/1`
-   - Headers: `Authorization: Bearer {{token}}`
-   - Body (JSON): Xem example ở trên
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Lấy giỏ hàng thành công",
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "product_id": 1,
+        "product_name": "iPhone 15",
+        "product_price": 25000000,
+        "discount_price": 23000000,
+        "quantity": 2,
+        "subtotal": 46000000
+      }
+    ],
+    "summary": {
+      "total_items": 5,
+      "total_amount": 1150000,
+      "item_count": 3
+    }
+  }
+}
+```
 
-5. **Test DELETE product:**
-   - Method: DELETE
-   - URL: `{{baseURL}}/api/products/1`
-   - Headers: `Authorization: Bearer {{token}}`
+#### Update Cart Item
 
-6. **Test GET products by seller:**
-   - Method: GET
-   - URL: `{{baseURL}}/api/products/seller/1`
+**Endpoint:** `PUT /api/cart/update/:id`  
+**Description:** Update quantity of item in cart  
 
-7. **Test GET featured products:**
-   - Method: GET
-   - URL: `{{baseURL}}/api/products/featured?limit=5`
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
+**Request Body:**
+```json
+{
+  "quantity": 3
+}
+```
 
-## 📝 Notes
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Cập nhật số lượng thành công",
+  "data": {
+    "id": 1,
+    "quantity": 3,
+    "updated_at": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
 
-- **JWT Token**: Có thời hạn 7 ngày
-- **Password Security**: Được mã hóa bằng bcrypt
-- **Optional Fields**: `studentId`, `phone`, `address` là optional khi đăng ký
-- **Unique Constraints**: Email và username phải unique
-- **Testing**: Sử dụng Postman để test tất cả APIs
-- **Role System**: 3 roles - `user`, `seller`, `admin`
+#### Remove from Cart
+
+**Endpoint:** `DELETE /api/cart/remove/:id`  
+**Description:** Remove specific item from cart  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Xóa sản phẩm khỏi giỏ hàng thành công",
+  "data": {
+    "removed_item_id": 1
+  }
+}
+```
+
+#### Clear Cart
+
+**Endpoint:** `DELETE /api/cart/clear`  
+**Description:** Remove all items from cart  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Đã xóa 3 sản phẩm khỏi giỏ hàng",
+  "data": {
+    "removed_items": 3
+  }
+}
+```
+
+#### Validate Cart
+
+**Endpoint:** `GET /api/cart/validate`  
+**Description:** Check cart items availability and pricing  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Kiểm tra giỏ hàng thành công",
+  "data": {
+    "valid_items": [
+      {
+        "id": 1,
+        "product_id": 1,
+        "is_available": true,
+        "current_price": 25000000,
+        "quantity_available": 10
+      }
+    ],
+    "invalid_items": [],
+    "is_valid": true,
+    "summary": {
+      "total_items": 3,
+      "valid_count": 3,
+      "invalid_count": 0
+    }
+  }
+}
+```
+
+#### Get Cart Count
+
+**Endpoint:** `GET /api/cart/count`  
+**Description:** Get number of items in cart  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Lấy số lượng items thành công",
+  "data": {
+    "total_items": 5,
+    "unique_products": 3
+  }
+}
+```
+
+#### Get Cart Total
+
+**Endpoint:** `GET /api/cart/total`  
+**Description:** Get total amount of cart  
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Lấy tổng tiền giỏ hàng thành công",
+  "data": {
+    "total_amount": 1150000,
+    "currency": "VND"
+  }
+}
+```
 
 ---
 
-## 📦 Order Management APIs
+## Order Management
 
-### 🛍️ Order Endpoints
+### � Order APIs
 
-#### 1. POST /api/orders
-**Tạo đơn hàng mới**
+> **Authentication Required:** Bearer token
+
+#### Create Order
+
+**Endpoint:** `POST /api/orders`  
+**Description:** Create a new order from cart or direct items  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
+```
 
-
-**Request Body (từ giỏ hàng):**
+**Request Body (from cart):**
 ```json
 {
   "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
@@ -665,7 +816,7 @@ Content-Type: application/json
 }
 ```
 
-**Request Body (trực tiếp):**
+**Request Body (direct order):**
 ```json
 {
   "items": [
@@ -684,7 +835,7 @@ Content-Type: application/json
 }
 ```
 
-**Response (201):**
+**Response (201 Created):**
 ```json
 {
   "success": true,
@@ -696,32 +847,49 @@ Content-Type: application/json
     "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
     "payment_method": "cod",
     "status": "pending",
-    "items": [...],
-    "payment": {...}
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "items": [
+      {
+        "product_id": 1,
+        "product_name": "iPhone 15",
+        "quantity": 2,
+        "price": 250000
+      }
+    ]
   }
 }
 ```
 
----
+#### Get User Orders
 
-#### 2. GET /api/orders
-**Lấy danh sách đơn hàng của user**
+**Endpoint:** `GET /api/orders`  
+**Description:** Get paginated list of user's orders  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số đơn hàng mỗi trang (default: 10)
-- `status` (string, optional): Lọc theo trạng thái
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Orders per page (default: 10)
+- `status` (string, optional): Filter by status
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Lấy danh sách đơn hàng thành công",
   "data": {
-    "orders": [...],
+    "orders": [
+      {
+        "id": 1,
+        "total_amount": 500000,
+        "status": "pending",
+        "created_at": "2025-01-01T00:00:00.000Z",
+        "items_count": 2
+      }
+    ],
     "pagination": {
       "current_page": 1,
       "total_pages": 5,
@@ -733,15 +901,17 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
----
+#### Get Order Details
 
-#### 3. GET /api/orders/:id
-**Lấy chi tiết đơn hàng**
+**Endpoint:** `GET /api/orders/:id`  
+**Description:** Get detailed information about specific order  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -754,21 +924,37 @@ Authorization: Bearer <JWT_TOKEN>
     "payment_method": "cod",
     "status": "pending",
     "created_at": "2025-01-01T00:00:00.000Z",
-    "items": [...],
-    "payments": [...]
+    "items": [
+      {
+        "id": 1,
+        "product_id": 1,
+        "product_name": "iPhone 15",
+        "quantity": 2,
+        "price": 250000
+      }
+    ],
+    "payments": [
+      {
+        "id": 1,
+        "payment_method": "cod",
+        "payment_status": "pending",
+        "amount": 500000
+      }
+    ]
   }
 }
 ```
 
----
+#### Update Order Status
 
-#### 4. PUT /api/orders/:id/status
-**Cập nhật trạng thái đơn hàng**
+**Endpoint:** `PUT /api/orders/:id/status`  
+**Description:** Update order status  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
 Content-Type: application/json
-
+```
 
 **Request Body:**
 ```json
@@ -777,9 +963,11 @@ Content-Type: application/json
 }
 ```
 
-**Valid Statuses:** `pending`, `processing`, `shipped`, `delivered`, `cancelled`
+**Valid Status Transitions:**
+- `pending` → `processing` → `shipped` → `delivered`
+- Any status → `cancelled` (with restrictions)
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -792,16 +980,17 @@ Content-Type: application/json
 }
 ```
 
----
+#### Cancel Order
 
-#### 5. DELETE /api/orders/:id
-**Hủy đơn hàng**
+**Endpoint:** `DELETE /api/orders/:id`  
+**Description:** Cancel an order  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -813,16 +1002,17 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
----
+#### Get Order Items
 
-#### 6. GET /api/orders/:id/items
-**Lấy danh sách items trong đơn hàng**
+**Endpoint:** `GET /api/orders/:id/items`  
+**Description:** Get list of items in specific order  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
-
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -840,15 +1030,17 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
----
+#### Get Order Statistics
 
-#### 7. GET /api/orders/stats
-**Lấy thống kê đơn hàng**
+**Endpoint:** `GET /api/orders/stats`  
+**Description:** Get user's order statistics  
 
 **Headers:**
+```
 Authorization: Bearer <JWT_TOKEN>
+```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -872,248 +1064,68 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### 👨‍💼 Admin Order APIs
 
-#### 1. GET /api/admin/orders
-**Lấy tất cả đơn hàng (Admin only)**
+> **Authentication Required:** Admin role + Bearer token
+
+#### Get All Orders
+
+**Endpoint:** `GET /api/admin/orders`  
+**Description:** Get all orders (Admin only)  
 
 **Headers:**
+```
 Authorization: Bearer <ADMIN_JWT_TOKEN>
+```
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số đơn hàng mỗi trang (default: 20)
-- `status` (string, optional): Lọc theo trạng thái
-- `user_id` (number, optional): Lọc theo user
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Orders per page (default: 20)
+- `status` (string, optional): Filter by status
+- `user_id` (number, optional): Filter by user
 
 ---
 
 ### 🏪 Seller Order APIs
 
-#### 2. GET /api/seller/orders
-**Lấy đơn hàng của seller**
+> **Authentication Required:** Seller role + Bearer token
+
+#### Get Seller Orders
+
+**Endpoint:** `GET /api/seller/orders`  
+**Description:** Get orders containing seller's products  
 
 **Headers:**
+```
 Authorization: Bearer <SELLER_JWT_TOKEN>
+```
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số đơn hàng mỗi trang (default: 20)
-- `status` (string, optional): Lọc theo trạng thái
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Orders per page (default: 20)
+- `status` (string, optional): Filter by status
 
 ---
 
-## 🛒 Shopping Cart APIs
+## Payment Management
 
-### 🛍️ Cart Endpoints
+### ⚠️ Important Payment Flow
 
-#### 1. POST /api/cart/add
-**Thêm sản phẩm vào giỏ hàng**
+> **Version 2.0 Update:** Orders and Payments are now separate entities to prevent duplication
 
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-
-
-**Request Body:**
-```json
-{
-  "product_id": 1,
-  "quantity": 2
-}
-```
-
-**Response (201):**
-```json
-{
-  "success": true,
-  "message": "Thêm sản phẩm vào giỏ hàng thành công",
-  "data": {
-    "id": 1,
-    "user_id": 1,
-    "product_id": 1,
-    "quantity": 2,
-    "product_name": "iPhone 15",
-    "product_price": 25000000,
-    "product_discount_price": 23000000
-  }
-}
-```
+**Correct Flow:**
+1. **Create Order** → Does not automatically create payment
+2. **Create Payment** → For specific order
+3. **Update Payment Status** → Automatically updates order status
 
 ---
 
-#### 2. GET /api/cart
-**Lấy danh sách sản phẩm trong giỏ hàng**
+### 💰 Payment APIs
 
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
+> **Authentication Required:** Bearer token
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Lấy giỏ hàng thành công",
-  "data": {
-    "items": [...],
-    "summary": {
-      "total_items": 5,
-      "total_amount": 1150000,
-      "item_count": 3
-    }
-  }
-}
-```
+#### Create Payment
 
----
-
-#### 3. PUT /api/cart/update/:id
-**Cập nhật số lượng sản phẩm trong giỏ**
-
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-
-**Request Body:**
-```json
-{
-  "quantity": 3
-}
-```
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Cập nhật số lượng thành công",
-  "data": {
-    "id": 1,
-    "quantity": 3,
-    "updated_at": "2025-01-01T12:00:00.000Z"
-  }
-}
-```
-
----
-
-#### 4. DELETE /api/cart/remove/:id
-**Xóa sản phẩm khỏi giỏ hàng**
-
-**Headers:**
-
-Authorization: Bearer <JWT_TOKEN>
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Xóa sản phẩm khỏi giỏ hàng thành công",
-  "data": {
-    "removed_item_id": 1
-  }
-}
-```
-
----
-
-#### 5. DELETE /api/cart/clear
-**Xóa toàn bộ giỏ hàng**
-
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Đã xóa 3 sản phẩm khỏi giỏ hàng",
-  "data": {
-    "removed_items": 3
-  }
-}
-```
-
----
-
-#### 6. GET /api/cart/validate
-**Kiểm tra tính khả dụng của giỏ hàng**
-
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Kiểm tra giỏ hàng thành công",
-  "data": {
-    "valid_items": [...],
-    "invalid_items": [...],
-    "is_valid": true,
-    "summary": {
-      "total_items": 3,
-      "valid_count": 3,
-      "invalid_count": 0
-    }
-  }
-}
-```
-
----
-
-#### 7. GET /api/cart/count
-**Lấy số lượng items trong giỏ hàng**
-
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Lấy số lượng items thành công",
-  "data": {
-    "total_items": 5,
-    "unique_products": 3
-  }
-}
-```
-
----
-
-#### 8. GET /api/cart/total
-**Lấy tổng tiền giỏ hàng**
-
-**Headers:**
-Authorization: Bearer <JWT_TOKEN>
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Lấy tổng tiền giỏ hàng thành công",
-  "data": {
-    "total_amount": 1150000,
-    "currency": "VND"
-  }
-}
-```
-
----
-
-## 💳 Payment Management APIs
-
-###  **IMPORTANT NOTE - FLOW HOẠT ĐỘNG**
-
-**Từ phiên bản mới:** Order và Payment đã được tách riêng để tránh duplicate!
-
-**Flow chính xác:**
-1. **Tạo Order** → Không tự động tạo Payment
-2. **Tạo Payment** → Cho order cụ thể
-3. **Cập nhật Payment Status** → Auto cập nhật Order Status
-
----
-
-### 💰 Payment Endpoints
-
-#### 1. POST /api/payments
-**Tạo payment cho đơn hàng**
+**Endpoint:** `POST /api/payments`  
+**Description:** Create payment for an existing order  
 
 **Headers:**
 ```
@@ -1131,7 +1143,7 @@ Content-Type: application/json
 ```
 
 **Supported Payment Methods:**
-- `cod` - Cash on Delivery (không cần transaction_id)
+- `cod` - Cash on Delivery (no transaction_id required)
 - `credit_card` - Credit Card
 - `debit_card` - Debit Card  
 - `momo` - MoMo Wallet
@@ -1141,7 +1153,7 @@ Content-Type: application/json
 - `paypal` - PayPal
 - `stripe` - Stripe
 
-**Response (201):**
+**Response (201 Created):**
 ```json
 {
   "success": true,
@@ -1158,23 +1170,17 @@ Content-Type: application/json
 }
 ```
 
-**Postman Setup:**
-- Method: `POST`
-- URL: `https://api.unimerch.space/api/payments`
-- Headers: `Authorization: Bearer {{token}}`
-- Body: Raw JSON (see above)
+#### Get Order Payments
 
----
-
-#### 2. GET /api/payments/:orderId
-**Lấy tất cả payments của một đơn hàng**
+**Endpoint:** `GET /api/payments/:orderId`  
+**Description:** Get all payments for a specific order  
 
 **Headers:**
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1194,21 +1200,17 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/payments/6`
+#### Get Payment Details
 
----
-
-#### 3. GET /api/payments/detail/:id
-**Lấy chi tiết payment theo ID**
+**Endpoint:** `GET /api/payments/detail/:id`  
+**Description:** Get detailed payment information by payment ID  
 
 **Headers:**
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1226,14 +1228,10 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/payments/detail/1`
+#### Update Payment Status
 
----
-
-#### 4. PUT /api/payments/:id/status
-**Cập nhật trạng thái payment**
+**Endpoint:** `PUT /api/payments/:id/status`  
+**Description:** Update payment status and transaction details  
 
 **Headers:**
 ```
@@ -1259,7 +1257,7 @@ Content-Type: application/json
 - Payment `completed` → Order status: `processing`
 - Payment `refunded` → Order status: `cancelled`
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1273,14 +1271,10 @@ Content-Type: application/json
 }
 ```
 
-**Postman Setup:**
-- Method: `PUT`
-- URL: `https://api.unimerch.space/api/payments/1/status`
+#### Get User Payments
 
----
-
-#### 5. GET /api/payments/user
-**Lấy tất cả payments của user hiện tại**
+**Endpoint:** `GET /api/payments/user`  
+**Description:** Get all payments for current user  
 
 **Headers:**
 ```
@@ -1288,17 +1282,26 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số payments mỗi trang (default: 10)
-- `status` (string, optional): Lọc theo trạng thái
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Items per page (default: 10)
+- `status` (string, optional): Filter by status
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Lấy danh sách payments thành công",
   "data": {
-    "payments": [...],
+    "payments": [
+      {
+        "id": 1,
+        "order_id": 6,
+        "payment_method": "credit_card",
+        "payment_status": "completed",
+        "amount": "150000.00",
+        "created_at": "2025-01-15T10:30:00.000Z"
+      }
+    ],
     "pagination": {
       "current_page": 1,
       "total_pages": 3,
@@ -1310,16 +1313,16 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/payments/user?page=1&limit=10&status=completed`
-
 ---
 
 ### 👨‍💼 Admin Payment APIs
 
-#### 6. GET /api/admin/payments
-**Lấy tất cả payments (Admin only)**
+> **Authentication Required:** Admin role + Bearer token
+
+#### Get All Payments
+
+**Endpoint:** `GET /api/admin/payments`  
+**Description:** Get all payments system-wide (Admin only)  
 
 **Headers:**
 ```
@@ -1327,42 +1330,16 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Query Parameters:**
-- `page` (number, optional): Trang hiện tại (default: 1)
-- `limit` (number, optional): Số payments mỗi trang (default: 20)
-- `status` (string, optional): Lọc theo trạng thái
-- `start_date` (string, optional): Lọc từ ngày (YYYY-MM-DD)
-- `end_date` (string, optional): Lọc đến ngày (YYYY-MM-DD)
+- `page` (number, optional): Page number (default: 1)
+- `limit` (number, optional): Items per page (default: 20)
+- `status` (string, optional): Filter by status
+- `start_date` (string, optional): Filter from date (YYYY-MM-DD)
+- `end_date` (string, optional): Filter to date (YYYY-MM-DD)
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Lấy danh sách tất cả payments thành công",
-  "data": {
-    "payments": [
-      {
-        "id": 1,
-        "order_id": 6,
-        "payment_method": "credit_card",
-        "payment_status": "completed",
-        "amount": "150000.00",
-        "username": "john_doe",
-        "email": "john@example.com"
-      }
-    ],
-    "pagination": {...}
-  }
-}
-```
+#### Get Payment Statistics
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/admin/payments?page=1&status=completed&start_date=2025-01-01`
-
----
-
-#### 7. GET /api/payments/stats
-**Thống kê payments (Admin only)**
+**Endpoint:** `GET /api/payments/stats`  
+**Description:** Get payment statistics (Admin only)  
 
 **Headers:**
 ```
@@ -1370,10 +1347,10 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Query Parameters:**
-- `start_date` (string, optional): Từ ngày (YYYY-MM-DD)
-- `end_date` (string, optional): Đến ngày (YYYY-MM-DD)
+- `start_date` (string, optional): From date (YYYY-MM-DD)
+- `end_date` (string, optional): To date (YYYY-MM-DD)
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1395,14 +1372,10 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 }
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/payments/stats?start_date=2025-01-01&end_date=2025-01-31`
+#### Get Revenue Data
 
----
-
-#### 8. GET /api/payments/revenue
-**Lấy doanh thu theo thời gian (Admin only)**
+**Endpoint:** `GET /api/payments/revenue`  
+**Description:** Get revenue data over time (Admin only)  
 
 **Headers:**
 ```
@@ -1410,10 +1383,10 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 ```
 
 **Query Parameters:**
-- `period` (string, optional): Chu kỳ thời gian - `hour`, `day`, `week`, `month`, `year` (default: day)
-- `limit` (number, optional): Số chu kỳ (default: 30)
+- `period` (string, optional): Time period - `hour`, `day`, `week`, `month`, `year` (default: day)
+- `limit` (number, optional): Number of periods (default: 30)
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1438,14 +1411,10 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 }
 ```
 
-**Postman Setup:**
-- Method: `GET`
-- URL: `https://api.unimerch.space/api/payments/revenue?period=day&limit=7`
+#### Process Refund
 
----
-
-#### 9. POST /api/payments/:id/refund
-**Hoàn tiền payment (Admin only)**
+**Endpoint:** `POST /api/payments/:id/refund`  
+**Description:** Process payment refund (Admin only)  
 
 **Headers:**
 ```
@@ -1460,7 +1429,7 @@ Content-Type: application/json
 }
 ```
 
-**Response (200):**
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -1474,12 +1443,293 @@ Content-Type: application/json
 }
 ```
 
-**Note:** Khi hoàn tiền, order status sẽ tự động chuyển thành `cancelled`.
-
-**Postman Setup:**
-- Method: `POST`
-- URL: `https://api.unimerch.space/api/payments/1/refund`
+> **Note:** When refunding, order status automatically changes to `cancelled`
 
 ---
+
+## Error Responses
+
+### HTTP Status Codes
+
+UniMerch API uses conventional HTTP response codes to indicate the success or failure of requests.
+
+#### Success Codes
+- **200 OK** - Request successful
+- **201 Created** - Resource created successfully
+- **204 No Content** - Request successful, no content to return
+
+#### Client Error Codes
+- **400 Bad Request** - Invalid request data
+- **401 Unauthorized** - Authentication required or invalid
+- **403 Forbidden** - Insufficient permissions
+- **404 Not Found** - Resource not found
+- **409 Conflict** - Resource conflict (duplicate data)
+- **422 Unprocessable Entity** - Validation errors
+
+#### Server Error Codes
+- **500 Internal Server Error** - Server error
+- **503 Service Unavailable** - Service temporarily unavailable
+
+---
+
+### Error Response Format
+
+All error responses follow a consistent format:
+
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "errors": ["Detailed error messages (optional)"]
+}
+```
+
+---
+
+### Common Error Examples
+
+#### 400 - Validation Error
+```json
+{
+  "success": false,
+  "message": "Dữ liệu không hợp lệ",
+  "errors": [
+    "Tên đầy đủ không được để trống",
+    "Email không hợp lệ",
+    "Mật khẩu phải có ít nhất 8 ký tự"
+  ]
+}
+```
+
+#### 401 - Authentication Error
+```json
+{
+  "success": false,
+  "message": "Token không được cung cấp"
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Token không hợp lệ hoặc đã hết hạn"
+}
+```
+
+#### 403 - Authorization Error
+```json
+{
+  "success": false,
+  "message": "Không có quyền truy cập. Chỉ admin mới có thể thực hiện thao tác này"
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Bạn chỉ có thể chỉnh sửa sản phẩm của chính mình"
+}
+```
+
+#### 404 - Not Found
+```json
+{
+  "success": false,
+  "message": "Không tìm thấy người dùng"
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Sản phẩm không tồn tại"
+}
+```
+
+#### 409 - Conflict
+```json
+{
+  "success": false,
+  "message": "Email đã được sử dụng"
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Username đã tồn tại"
+}
+```
+
+#### 422 - Validation Error
+```json
+{
+  "success": false,
+  "message": "Số lượng sản phẩm không đủ",
+  "errors": [
+    "Sản phẩm 'iPhone 15' chỉ còn 3 chiếc, không thể thêm 5 chiếc vào giỏ"
+  ]
+}
+```
+
+#### 500 - Server Error
+```json
+{
+  "success": false,
+  "message": "Lỗi server nội bộ"
+}
+```
+
+---
+
+## Testing Guide
+
+### Postman Setup
+
+#### Environment Variables
+Create a Postman environment with the following variables:
+
+```
+baseURL: http://localhost:3000  (or https://api.unimerch.space)
+token: (JWT token after login)
+adminToken: (Admin JWT token)
+sellerToken: (Seller JWT token)
+```
+
+#### Authentication Setup
+1. **Login first** to get JWT token
+2. **Set token in environment** variable
+3. **Use `{{token}}`** in Authorization header for subsequent requests
+
+---
+
+### Test Sequence
+
+#### 1. Authentication Flow
+```
+POST {{baseURL}}/api/auth/register
+POST {{baseURL}}/api/auth/login
+POST {{baseURL}}/api/auth/logout
+POST {{baseURL}}/api/auth/forgot-password
+```
+
+#### 2. User Management
+```
+GET {{baseURL}}/api/users/profile
+PUT {{baseURL}}/api/users/profile
+PUT {{baseURL}}/api/users/change-password
+```
+
+#### 3. Product Operations
+```
+GET {{baseURL}}/api/products
+GET {{baseURL}}/api/products/1
+POST {{baseURL}}/api/products
+PUT {{baseURL}}/api/products/1
+DELETE {{baseURL}}/api/products/1
+```
+
+#### 4. Shopping Cart
+```
+POST {{baseURL}}/api/cart/add
+GET {{baseURL}}/api/cart
+PUT {{baseURL}}/api/cart/update/1
+DELETE {{baseURL}}/api/cart/remove/1
+DELETE {{baseURL}}/api/cart/clear
+```
+
+#### 5. Order Process
+```
+POST {{baseURL}}/api/orders
+GET {{baseURL}}/api/orders
+GET {{baseURL}}/api/orders/1
+PUT {{baseURL}}/api/orders/1/status
+```
+
+#### 6. Payment Flow
+```
+POST {{baseURL}}/api/payments
+GET {{baseURL}}/api/payments/1
+PUT {{baseURL}}/api/payments/1/status
+```
+
+---
+
+### Headers Template
+
+For authenticated requests, use:
+```
+Authorization: Bearer {{token}}
+Content-Type: application/json
+```
+
+For admin requests:
+```
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+```
+
+---
+
+## Status Codes
+
+### Order Status Flow
+```
+pending → processing → shipped → delivered
+       ↘              ↘
+        cancelled    cancelled
+```
+
+### Payment Status Flow
+```
+pending → completed
+       ↘  ↗
+        failed
+       
+completed → refunded (admin only)
+```
+
+### Product Status
+- `available` - Product is available for purchase
+- `out_of_stock` - Product is temporarily unavailable
+- `discontinued` - Product is permanently unavailable
+
+### User Roles
+- `user` - Regular customer (default)
+- `seller` - Can manage own products
+- `admin` - Full system access
+
+---
+
+## Additional Notes
+
+### Security Features
+- **JWT Tokens** expire in 7 days
+- **Password hashing** using bcrypt
+- **Role-based access control** for all endpoints
+- **Input validation** on all requests
+
+### Data Constraints
+- **Email and username** must be unique
+- **Optional fields** during registration: `studentId`, `phone`, `address`
+- **Price validation** ensures positive values
+- **Quantity validation** prevents overselling
+
+### Rate Limiting
+- Authentication endpoints: 5 requests per minute
+- General API endpoints: 100 requests per minute
+- Admin endpoints: 200 requests per minute
+
+### Pagination
+All list endpoints support pagination with:
+- `page` parameter (default: 1)
+- `limit` parameter (default: 10-20 depending on endpoint)
+- Response includes pagination metadata
+
+---
+
+**Documentation Version:** 1.0  
+**Last Updated:** September 16, 2025  
+**API Base URL:** `http://localhost:3000` | `https://api.unimerch.space`
 
 
