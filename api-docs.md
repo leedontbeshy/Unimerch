@@ -648,7 +648,7 @@ Xóa sản phẩm.
 
 ### 🛍️ Order Endpoints
 
-#### POST /api/orders
+#### 1. POST /api/orders
 **Tạo đơn hàng mới**
 
 **Headers:**
@@ -704,7 +704,7 @@ Content-Type: application/json
 
 ---
 
-#### GET /api/orders
+#### 2. GET /api/orders
 **Lấy danh sách đơn hàng của user**
 
 **Headers:**
@@ -735,7 +735,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/orders/:id
+#### 3. GET /api/orders/:id
 **Lấy chi tiết đơn hàng**
 
 **Headers:**
@@ -762,7 +762,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### PUT /api/orders/:id/status
+#### 4. PUT /api/orders/:id/status
 **Cập nhật trạng thái đơn hàng**
 
 **Headers:**
@@ -794,7 +794,7 @@ Content-Type: application/json
 
 ---
 
-#### DELETE /api/orders/:id
+#### 5. DELETE /api/orders/:id
 **Hủy đơn hàng**
 
 **Headers:**
@@ -815,7 +815,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/orders/:id/items
+#### 6. GET /api/orders/:id/items
 **Lấy danh sách items trong đơn hàng**
 
 **Headers:**
@@ -842,7 +842,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/orders/stats
+#### 7. GET /api/orders/stats
 **Lấy thống kê đơn hàng**
 
 **Headers:**
@@ -872,7 +872,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### 👨‍💼 Admin Order APIs
 
-#### GET /api/admin/orders
+#### 1. GET /api/admin/orders
 **Lấy tất cả đơn hàng (Admin only)**
 
 **Headers:**
@@ -888,7 +888,7 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 
 ### 🏪 Seller Order APIs
 
-#### GET /api/seller/orders
+#### 2. GET /api/seller/orders
 **Lấy đơn hàng của seller**
 
 **Headers:**
@@ -905,7 +905,7 @@ Authorization: Bearer <SELLER_JWT_TOKEN>
 
 ### 🛍️ Cart Endpoints
 
-#### POST /api/cart/add
+#### 1. POST /api/cart/add
 **Thêm sản phẩm vào giỏ hàng**
 
 **Headers:**
@@ -940,7 +940,7 @@ Content-Type: application/json
 
 ---
 
-#### GET /api/cart
+#### 2. GET /api/cart
 **Lấy danh sách sản phẩm trong giỏ hàng**
 
 **Headers:**
@@ -964,7 +964,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### PUT /api/cart/update/:id
+#### 3. PUT /api/cart/update/:id
 **Cập nhật số lượng sản phẩm trong giỏ**
 
 **Headers:**
@@ -993,7 +993,7 @@ Content-Type: application/json
 
 ---
 
-#### DELETE /api/cart/remove/:id
+#### 4. DELETE /api/cart/remove/:id
 **Xóa sản phẩm khỏi giỏ hàng**
 
 **Headers:**
@@ -1013,7 +1013,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### DELETE /api/cart/clear
+#### 5. DELETE /api/cart/clear
 **Xóa toàn bộ giỏ hàng**
 
 **Headers:**
@@ -1032,7 +1032,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/cart/validate
+#### 6. GET /api/cart/validate
 **Kiểm tra tính khả dụng của giỏ hàng**
 
 **Headers:**
@@ -1057,7 +1057,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/cart/count
+#### 7. GET /api/cart/count
 **Lấy số lượng items trong giỏ hàng**
 
 **Headers:**
@@ -1077,7 +1077,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-#### GET /api/cart/total
+#### 8. GET /api/cart/total
 **Lấy tổng tiền giỏ hàng**
 
 **Headers:**
@@ -1097,3 +1097,554 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
+## 💳 Payment Management APIs
+
+###  **IMPORTANT NOTE - FLOW HOẠT ĐỘNG**
+
+**Từ phiên bản mới:** Order và Payment đã được tách riêng để tránh duplicate!
+
+**Flow chính xác:**
+1. **Tạo Order** → Không tự động tạo Payment
+2. **Tạo Payment** → Cho order cụ thể
+3. **Cập nhật Payment Status** → Auto cập nhật Order Status
+
+---
+
+### 💰 Payment Endpoints
+
+#### 1. POST /api/payments
+**Tạo payment cho đơn hàng**
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "order_id": 6,
+  "payment_method": "credit_card",
+  "transaction_id": "TXN_CC_123456"
+}
+```
+
+**Supported Payment Methods:**
+- `cod` - Cash on Delivery (không cần transaction_id)
+- `credit_card` - Credit Card
+- `debit_card` - Debit Card  
+- `momo` - MoMo Wallet
+- `zalopay` - ZaloPay
+- `vnpay` - VNPay
+- `bank_transfer` - Bank Transfer
+- `paypal` - PayPal
+- `stripe` - Stripe
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Tạo payment thành công",
+  "data": {
+    "id": 1,
+    "order_id": 6,
+    "payment_method": "credit_card",
+    "payment_status": "pending",
+    "transaction_id": "TXN_CC_123456",
+    "amount": "150000.00",
+    "created_at": "2025-01-15T10:30:00.000Z"
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `POST`
+- URL: `https://api.unimerch.space/api/payments`
+- Headers: `Authorization: Bearer {{token}}`
+- Body: Raw JSON (see above)
+
+---
+
+#### 2. GET /api/payments/:orderId
+**Lấy tất cả payments của một đơn hàng**
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy thông tin payments thành công",
+  "data": [
+    {
+      "id": 1,
+      "order_id": 6,
+      "payment_method": "credit_card",
+      "payment_status": "completed",
+      "transaction_id": "TXN_CC_123456_CONFIRMED",
+      "amount": "150000.00",
+      "created_at": "2025-01-15T10:30:00.000Z",
+      "updated_at": "2025-01-15T11:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/payments/6`
+
+---
+
+#### 3. GET /api/payments/detail/:id
+**Lấy chi tiết payment theo ID**
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy thông tin payment thành công",
+  "data": {
+    "id": 1,
+    "order_id": 6,
+    "payment_method": "credit_card",
+    "payment_status": "completed",
+    "transaction_id": "TXN_CC_123456_CONFIRMED",
+    "amount": "150000.00",
+    "user_id": 7,
+    "order_total": "150000.00"
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/payments/detail/1`
+
+---
+
+#### 4. PUT /api/payments/:id/status
+**Cập nhật trạng thái payment**
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "status": "completed",
+  "transaction_id": "TXN_CC_123456_CONFIRMED"
+}
+```
+
+**Valid Status Transitions:**
+- `pending` → `completed` | `failed`
+- `failed` → `pending` (retry allowed)
+- `completed` → `refunded` (admin only)
+- `refunded` → **Final State**
+
+**Auto Order Status Updates:**
+- Payment `completed` → Order status: `processing`
+- Payment `refunded` → Order status: `cancelled`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Cập nhật trạng thái payment thành công",
+  "data": {
+    "id": 1,
+    "payment_status": "completed",
+    "transaction_id": "TXN_CC_123456_CONFIRMED",
+    "updated_at": "2025-01-15T11:00:00.000Z"
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `PUT`
+- URL: `https://api.unimerch.space/api/payments/1/status`
+
+---
+
+#### 5. GET /api/payments/user
+**Lấy tất cả payments của user hiện tại**
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số payments mỗi trang (default: 10)
+- `status` (string, optional): Lọc theo trạng thái
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy danh sách payments thành công",
+  "data": {
+    "payments": [...],
+    "pagination": {
+      "current_page": 1,
+      "total_pages": 3,
+      "total_payments": 25,
+      "has_next": true,
+      "has_prev": false
+    }
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/payments/user?page=1&limit=10&status=completed`
+
+---
+
+### 👨‍💼 Admin Payment APIs
+
+#### 6. GET /api/admin/payments
+**Lấy tất cả payments (Admin only)**
+
+**Headers:**
+```
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+```
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số payments mỗi trang (default: 20)
+- `status` (string, optional): Lọc theo trạng thái
+- `start_date` (string, optional): Lọc từ ngày (YYYY-MM-DD)
+- `end_date` (string, optional): Lọc đến ngày (YYYY-MM-DD)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy danh sách tất cả payments thành công",
+  "data": {
+    "payments": [
+      {
+        "id": 1,
+        "order_id": 6,
+        "payment_method": "credit_card",
+        "payment_status": "completed",
+        "amount": "150000.00",
+        "username": "john_doe",
+        "email": "john@example.com"
+      }
+    ],
+    "pagination": {...}
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/admin/payments?page=1&status=completed&start_date=2025-01-01`
+
+---
+
+#### 7. GET /api/payments/stats
+**Thống kê payments (Admin only)**
+
+**Headers:**
+```
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+```
+
+**Query Parameters:**
+- `start_date` (string, optional): Từ ngày (YYYY-MM-DD)
+- `end_date` (string, optional): Đến ngày (YYYY-MM-DD)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy thống kê payments thành công",
+  "data": [
+    {
+      "payment_status": "completed",
+      "payment_method": "credit_card",
+      "count": 15,
+      "total_amount": "2250000.00"
+    },
+    {
+      "payment_status": "pending",
+      "payment_method": "momo",
+      "count": 5,
+      "total_amount": "750000.00"
+    }
+  ]
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/payments/stats?start_date=2025-01-01&end_date=2025-01-31`
+
+---
+
+#### 8. GET /api/payments/revenue
+**Lấy doanh thu theo thời gian (Admin only)**
+
+**Headers:**
+```
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+```
+
+**Query Parameters:**
+- `period` (string, optional): Chu kỳ thời gian - `hour`, `day`, `week`, `month`, `year` (default: day)
+- `limit` (number, optional): Số chu kỳ (default: 30)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy doanh thu thành công",
+  "data": {
+    "period": "day",
+    "data": [
+      {
+        "period": "2025-01-15",
+        "transaction_count": 10,
+        "total_revenue": "1500000.00",
+        "successful_count": 8,
+        "successful_revenue": "1200000.00"
+      }
+    ],
+    "summary": {
+      "total_periods": 30,
+      "total_revenue": 45000000,
+      "total_transactions": 150
+    }
+  }
+}
+```
+
+**Postman Setup:**
+- Method: `GET`
+- URL: `https://api.unimerch.space/api/payments/revenue?period=day&limit=7`
+
+---
+
+#### 9. POST /api/payments/:id/refund
+**Hoàn tiền payment (Admin only)**
+
+**Headers:**
+```
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "reason": "Khách hàng yêu cầu hoàn tiền do sản phẩm lỗi"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Hoàn tiền thành công",
+  "data": {
+    "id": 1,
+    "payment_status": "refunded",
+    "refund_reason": "Khách hàng yêu cầu hoàn tiền do sản phẩm lỗi",
+    "updated_at": "2025-01-15T15:00:00.000Z"
+  }
+}
+```
+
+**Note:** Khi hoàn tiền, order status sẽ tự động chuyển thành `cancelled`.
+
+**Postman Setup:**
+- Method: `POST`
+- URL: `https://api.unimerch.space/api/payments/1/refund`
+
+---
+
+## 🧪 Testing Payment Flow với Postman
+
+### **Setup Collection & Environment**
+
+1. **Create Collection:** "Payment APIs"
+2. **Environment Variables:**
+   ```json
+   {
+     "base_url": "https://api.unimerch.space",
+     "token": "{{YOUR_JWT_TOKEN}}",
+     "admin_token": "{{ADMIN_JWT_TOKEN}}",
+     "order_id": "{{ORDER_ID}}",
+     "payment_id": "{{PAYMENT_ID}}"
+   }
+   ```
+
+### **Complete Test Scenarios**
+
+#### **Scenario 1: COD Payment Flow**
+```json
+// 1. Tạo Order trước
+POST {{base_url}}/api/orders
+{
+  "shipping_address": "123 Test Street",
+  "payment_method": "cod",
+  "from_cart": true
+}
+
+// 2. Tạo COD Payment
+POST {{base_url}}/api/payments
+{
+  "order_id": {{order_id}},
+  "payment_method": "cod"
+}
+// Note: Không cần transaction_id cho COD
+
+// 3. Hoàn thành COD khi giao hàng
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "completed"
+}
+```
+
+#### **Scenario 2: Online Payment Flow**
+```json
+// 1. Tạo Credit Card Payment
+POST {{base_url}}/api/payments
+{
+  "order_id": {{order_id}},
+  "payment_method": "credit_card",
+  "transaction_id": "CC_TXN_123456"
+}
+
+// 2. Mô phỏng payment gateway confirmation
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "completed",
+  "transaction_id": "CC_TXN_123456_CONFIRMED"
+}
+```
+
+#### **Scenario 3: Failed Payment Retry**
+```json
+// 1. Cập nhật thành failed
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "failed"
+}
+
+// 2. Retry payment
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "pending"
+}
+
+// 3. Thử lại với transaction mới
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "completed",
+  "transaction_id": "RETRY_TXN_789012"
+}
+```
+
+#### **Scenario 4: Admin Refund**
+```json
+// Admin hoàn tiền
+POST {{base_url}}/api/payments/{{payment_id}}/refund
+Authorization: Bearer {{admin_token}}
+{
+  "reason": "Sản phẩm bị lỗi - hoàn tiền theo yêu cầu"
+}
+```
+
+### **Error Testing Scenarios**
+
+#### **❌ Test Invalid Payment Method**
+```json
+POST {{base_url}}/api/payments
+{
+  "order_id": {{order_id}},
+  "payment_method": "bitcoin"  // Không hỗ trợ
+}
+// Expected: 400 - Phương thức thanh toán không hỗ trợ
+```
+
+#### **❌ Test Missing Transaction ID**
+```json
+POST {{base_url}}/api/payments
+{
+  "order_id": {{order_id}},
+  "payment_method": "credit_card"  // Thiếu transaction_id
+}
+// Expected: 400 - Transaction ID là bắt buộc
+```
+
+#### **❌ Test Invalid Status Transition**
+```json
+PUT {{base_url}}/api/payments/{{payment_id}}/status
+{
+  "status": "pending"  // Từ completed → pending (không hợp lệ)
+}
+// Expected: 400 - Không thể chuyển từ 'completed' sang 'pending'
+```
+
+#### **❌ Test Duplicate Payment**
+```json
+// Tạo payment thứ 2 cho order đã có payment completed
+POST {{base_url}}/api/payments
+{
+  "order_id": {{order_id}},
+  "payment_method": "momo",
+  "transaction_id": "MOMO_DUPLICATE"
+}
+// Expected: 400 - Đơn hàng đã được thanh toán thành công
+```
+
+### **Validation Rules Summary**
+
+| Rule | Description |
+|------|-------------|
+| Payment Methods | 9 methods supported, normalized to lowercase |
+| Transaction ID | Required for all non-COD methods |
+| Order Status | Only `pending` or `processing` orders can create payments |
+| Status Transitions | Strict validation: pending→completed/failed, failed→pending, completed→refunded |
+| Duplicate Prevention | One successful payment per order |
+| Auto Order Updates | Payment status changes trigger order status updates |
+| Admin Permissions | Only admin can refund payments |
+
+### **Quick Testing Checklist**
+- [ ] ✅ Login and get JWT token
+- [ ] ✅ Create order (verify no auto payment)
+- [ ] ✅ Test all 9 payment methods
+- [ ] ✅ Test COD flow (no transaction_id needed)
+- [ ] ✅ Test online payment flow (transaction_id required)
+- [ ] ✅ Test status transitions
+- [ ] ✅ Test failed payment retry
+- [ ] ✅ Test admin refund
+- [ ] ✅ Test duplicate payment prevention
+- [ ] ✅ Test order status auto-updates
+- [ ] ✅ Test error scenarios
+- [ ] ✅ Test pagination in listing APIs
+- [ ] ✅ Test admin statistics & revenue APIs
+
+**🎉 Payment API hoàn chỉnh và ready for production!**
+
+---

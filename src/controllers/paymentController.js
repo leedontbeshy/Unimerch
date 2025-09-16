@@ -8,6 +8,19 @@ const createPayment = async (req, res) => {
         const userId = req.user.id;
         const { order_id, payment_method, transaction_id } = req.body;
 
+        // Valid payment methods
+        const validPaymentMethods = [
+            'cod',           // Cash on Delivery
+            'credit_card',   // Credit Card
+            'debit_card',    // Debit Card
+            'momo',          // MoMo Wallet
+            'zalopay',       // ZaloPay
+            'vnpay',         // VNPay
+            'bank_transfer', // Bank Transfer
+            'paypal',        // PayPal
+            'stripe'         // Stripe
+        ];
+
         // Validation
         if (!order_id || isNaN(parseInt(order_id))) {
             return errorResponse(res, 'ID đơn hàng không hợp lệ', 400);
@@ -15,6 +28,10 @@ const createPayment = async (req, res) => {
 
         if (!payment_method || payment_method.trim().length === 0) {
             return errorResponse(res, 'Phương thức thanh toán không được để trống', 400);
+        }
+
+        if (!validPaymentMethods.includes(payment_method.trim().toLowerCase())) {
+            return errorResponse(res, `Phương thức thanh toán không hỗ trợ. Các phương thức hợp lệ: ${validPaymentMethods.join(', ')}`, 400);
         }
 
         // Kiểm tra đơn hàng có tồn tại không
@@ -28,20 +45,35 @@ const createPayment = async (req, res) => {
             return errorResponse(res, 'Không có quyền tạo payment cho đơn hàng này', 403);
         }
 
+        // Kiểm tra trạng thái đơn hàng - chỉ cho phép pending và processing
+        const allowedOrderStatuses = ['pending', 'processing'];
+        if (!allowedOrderStatuses.includes(order.status)) {
+            return errorResponse(res, `Không thể tạo payment cho đơn hàng có trạng thái '${order.status}'. Chỉ cho phép: ${allowedOrderStatuses.join(', ')}`, 400);
+        }
+
         // Kiểm tra xem đã có payment thành công chưa
         const hasSuccessfulPayment = await Payment.hasSuccessfulPayment(parseInt(order_id));
         if (hasSuccessfulPayment) {
             return errorResponse(res, 'Đơn hàng đã được thanh toán thành công', 400);
         }
 
+        // Validate transaction_id for non-COD payments
+        const normalizedMethod = payment_method.trim().toLowerCase();
+        if (normalizedMethod !== 'cod' && (!transaction_id || transaction_id.trim().length === 0)) {
+            return errorResponse(res, `Transaction ID là bắt buộc cho phương thức thanh toán '${payment_method}'`, 400);
+        }
+
         // Tạo payment
         const payment = await Payment.create({
             order_id: parseInt(order_id),
-            payment_method: payment_method.trim(),
-            transaction_id: transaction_id?.trim(),
+            payment_method: normalizedMethod,
+            transaction_id: transaction_id?.trim() || null,
             amount: order.total_amount,
             payment_status: 'pending'
         });
+
+        // ✅ AUTO-UPDATE: Sync order payment method with actual payment method
+        await Order.updatePaymentMethod(parseInt(order_id), normalizedMethod);
 
         return successResponse(res, payment, 'Tạo payment thành công', 201);
     } catch (error) {
@@ -126,7 +158,7 @@ const updatePaymentStatus = async (req, res) => {
 
         const validStatuses = ['pending', 'completed', 'failed', 'refunded'];
         if (!status || !validStatuses.includes(status)) {
-            return errorResponse(res, 'Trạng thái payment không hợp lệ', 400);
+            return errorResponse(res, `Trạng thái payment không hợp lệ. Các trạng thái hợp lệ: ${validStatuses.join(', ')}`, 400);
         }
 
         const payment = await Payment.findById(parseInt(id));
@@ -142,6 +174,31 @@ const updatePaymentStatus = async (req, res) => {
             }
         }
 
+        // Validate status transitions
+        const currentStatus = payment.payment_status;
+        const validTransitions = {
+            'pending': ['completed', 'failed'],
+            'completed': ['refunded'],
+            'failed': ['pending'],  // Allow retry
+            'refunded': []  // Final state
+        };
+
+        if (!validTransitions[currentStatus]?.includes(status)) {
+            return errorResponse(res, `Không thể chuyển từ trạng thái '${currentStatus}' sang '${status}'`, 400);
+        }
+
+        // Validate transaction_id for completed status
+        if (status === 'completed') {
+            if (payment.payment_method !== 'cod' && (!transaction_id || transaction_id.trim().length === 0)) {
+                return errorResponse(res, 'Transaction ID là bắt buộc khi hoàn thành thanh toán online', 400);
+            }
+        }
+
+        // Special validation for refund
+        if (status === 'refunded' && userRole !== 'admin') {
+            return errorResponse(res, 'Chỉ admin mới có thể hoàn tiền', 403);
+        }
+
         // Cập nhật trạng thái
         const updatedPayment = await Payment.updateStatus(parseInt(id), status, transaction_id);
 
@@ -149,9 +206,11 @@ const updatePaymentStatus = async (req, res) => {
             return errorResponse(res, 'Không thể cập nhật trạng thái payment', 400);
         }
 
-        // Nếu payment thành công, cập nhật trạng thái order
+        // Auto-update order status based on payment status
         if (status === 'completed') {
             await Order.updateStatus(payment.order_id, 'processing');
+        } else if (status === 'refunded') {
+            await Order.updateStatus(payment.order_id, 'cancelled');
         }
 
         return successResponse(res, updatedPayment, 'Cập nhật trạng thái payment thành công');

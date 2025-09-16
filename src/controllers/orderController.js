@@ -108,17 +108,10 @@ const createOrder = async (req, res) => {
             await ShoppingCart.removeOrderedItems(userId, productIds);
         }
 
-        // Tạo payment record
-        const payment = await Payment.create({
-            order_id: order.id,
-            payment_method: payment_method.trim(),
-            amount: totalAmount
-        });
-
+ 
         const orderWithItems = {
             ...order,
-            items: createdItems,
-            payment: payment
+            items: createdItems
         };
 
         return successResponse(res, orderWithItems, 'Tạo đơn hàng thành công', 201);

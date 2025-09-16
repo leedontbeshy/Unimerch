@@ -146,6 +146,28 @@ class Order {
     }
   }
 
+  // Cập nhật phương thức thanh toán đơn hàng
+  static async updatePaymentMethod(id, paymentMethod) {
+    try {
+      const query = `
+        UPDATE orders 
+        SET payment_method = $1, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $2 
+        RETURNING *
+      `;
+      
+      const result = await pool.query(query, [paymentMethod, id]);
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+      
+      return new Order(result.rows[0]);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Cập nhật đơn hàng
   static async update(id, updateData) {
     try {
