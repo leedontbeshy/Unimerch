@@ -31,11 +31,28 @@ const authenticateToken = async (req, res, next) => {
 
 const addToBlacklist = async (token) => {
     try {
+        if (!token) {
+            throw new Error('Token is required');
+        }
+        
         // Decode token để lấy exp time
         const decoded = verifyToken(token);
+        if (!decoded || !decoded.exp) {
+            throw new Error('Invalid token: missing expiration');
+        }
+        
         const expiresAt = new Date(decoded.exp * 1000);
         
-        await BlacklistedToken.add(token, expiresAt);
+        // Check if token is already expired
+        if (expiresAt <= new Date()) {
+            console.warn('Token is already expired, but adding to blacklist for completeness');
+        }
+        
+        console.log(`Adding token to blacklist, expires at: ${expiresAt.toISOString()}`);
+        const result = await BlacklistedToken.add(token, expiresAt);
+        console.log('Token successfully added to blacklist:', result?.id || 'success');
+        
+        return result;
     } catch (error) {
         console.error('Error adding token to blacklist:', error);
         throw error;

@@ -5,6 +5,7 @@ const { generateToken } = require('../utils/jwt');
 const { successResponse, errorResponse } = require('../utils/response');
 const { addToBlacklist } = require('../middleware/auth');
 const { sendResetPasswordEmail } = require('../utils/email');
+const DatabaseHealth = require('../utils/dbHealth');
 const crypto = require('crypto');
 const { Validator } = require('../utils/validator');
 
@@ -149,13 +150,32 @@ const logout = async (req, res) => {
     try {
         const token = req.token;
         
+        if (!token) {
+            return errorResponse(res, 'Token không hợp lệ', 400);
+        }
+        
+        // Check database connectivity before attempting to blacklist
+        const dbHealthy = await DatabaseHealth.checkConnection();
+        if (!dbHealthy) {
+            console.error('Database connection failed during logout');
+            return errorResponse(res, 'Không thể đăng xuất: Lỗi kết nối cơ sở dữ liệu', 503);
+        }
+        
         // Thêm token vào blacklist database
         await addToBlacklist(token);
         
         return successResponse(res, null, 'Đăng xuất thành công');
     } catch (error) {
         console.error('Logout error:', error);
-        return errorResponse(res, 'Lỗi server', 500);
+        
+        // Provide more specific error messages based on error type
+        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+            return errorResponse(res, 'Không thể đăng xuất: Lỗi kết nối cơ sở dữ liệu', 503);
+        } else if (error.name === 'JsonWebTokenError') {
+            return errorResponse(res, 'Token không hợp lệ', 401);
+        } else {
+            return errorResponse(res, 'Không thể đăng xuất: ' + error.message, 500);
+        }
     }
 };
 
