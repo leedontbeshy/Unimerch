@@ -267,79 +267,88 @@ class Payment {
 // Lấy doanh thu theo thời gian
 static async getRevenueByPeriod(period = 'day', limit = 30) {
   try {
-    // BƯỚC 1: Validation whitelist cho period (ngăn SQL injection)
-    const validPeriods = ['hour', 'day', 'week', 'month', 'year'];
-    if (!validPeriods.includes(period)) {
-      throw new Error(`Invalid period. Must be one of: ${validPeriods.join(', ')}`);
+    // BƯỚC 1: Validation và mapping an toàn với hardcoded values
+    const periodMapping = {
+      'hour': { 
+        interval: '1 HOUR', 
+        format: 'YYYY-MM-DD HH24:00:00',
+        maxLimit: 168 // 1 tuần
+      },
+      'day': { 
+        interval: '1 DAY', 
+        format: 'YYYY-MM-DD',
+        maxLimit: 365 // 1 năm
+      },
+      'week': { 
+        interval: '1 WEEK', 
+        format: 'YYYY-"W"WW',
+        maxLimit: 52 // 52 tuần
+      },
+      'month': { 
+        interval: '1 MONTH', 
+        format: 'YYYY-MM',
+        maxLimit: 24 // 2 năm
+      },
+      'year': { 
+        interval: '1 YEAR', 
+        format: 'YYYY',
+        maxLimit: 10 // 10 năm
+      }
+    };
+
+    if (!periodMapping[period]) {
+      throw new Error(`Invalid period. Must be one of: ${Object.keys(periodMapping).join(', ')}`);
     }
+
+    const { interval, format, maxLimit } = periodMapping[period];
 
     // BƯỚC 2: Validation cho limit
     const parsedLimit = parseInt(limit);
-    if (isNaN(parsedLimit) || parsedLimit <= 0 || parsedLimit > 365) {
-      throw new Error('Invalid limit. Must be a positive integer between 1 and 365');
+    if (isNaN(parsedLimit) || parsedLimit <= 0 || parsedLimit > maxLimit) {
+      throw new Error(`Invalid limit. Must be a positive integer between 1 and ${maxLimit}`);
     }
 
-    // BƯỚC 3: Tạo date format an toàn
-    let dateFormat;
-    switch (period) {
-      case 'hour':
-        dateFormat = 'YYYY-MM-DD HH24:00:00';
-        break;
-      case 'day':
-        dateFormat = 'YYYY-MM-DD';
-        break;
-      case 'week':
-        dateFormat = 'YYYY-"W"WW';
-        break;
-      case 'month':
-        dateFormat = 'YYYY-MM';
-        break;
-      case 'year':
-        dateFormat = 'YYYY';
-        break;
-      default:
-        dateFormat = 'YYYY-MM-DD';
-    }
-
-    // BƯỚC 4: Tạo interval string an toàn với số nhiều đúng
-    let intervalUnit;
-    switch (period) {
-      case 'hour':
-        intervalUnit = 'hours';
-        break;
-      case 'day':
-        intervalUnit = 'days';
-        break;
-      case 'week':
-        intervalUnit = 'weeks';
-        break;
-      case 'month':
-        intervalUnit = 'months';
-        break;
-      case 'year':
-        intervalUnit = 'years';
-        break;
-      default:
-        intervalUnit = 'days';
-    }
+    // BƯỚC 3: Sử dụng JavaScript để tính toán start date
+    let startDate;
+    const now = new Date();
     
-    const intervalString = `${parsedLimit} ${intervalUnit}`;
+    switch (period) {
+      case 'hour':
+        startDate = new Date(now.getTime() - (parsedLimit * 60 * 60 * 1000));
+        break;
+      case 'day':
+        startDate = new Date(now.getTime() - (parsedLimit * 24 * 60 * 60 * 1000));
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - (parsedLimit * 7 * 24 * 60 * 60 * 1000));
+        break;
+      case 'month':
+        const monthsAgo = new Date(now);
+        monthsAgo.setMonth(monthsAgo.getMonth() - parsedLimit);
+        startDate = monthsAgo;
+        break;
+      case 'year':
+        const yearsAgo = new Date(now);
+        yearsAgo.setFullYear(yearsAgo.getFullYear() - parsedLimit);
+        startDate = yearsAgo;
+        break;
+    }
 
-    // BƯỚC 5: Query với parameterized values cho format và string concatenation cho interval
+    // BƯỚC 4: Query an toàn - chỉ startDate được parameterized
     const query = `
       SELECT 
-        TO_CHAR(created_at, $1) as period,
+        TO_CHAR(created_at, '${format}') as period,
         COUNT(*) as transaction_count,
         SUM(amount) as total_revenue,
         COUNT(CASE WHEN payment_status = 'completed' THEN 1 END) as successful_count,
         SUM(CASE WHEN payment_status = 'completed' THEN amount ELSE 0 END) as successful_revenue
       FROM payments
-      WHERE created_at >= NOW() - INTERVAL '${intervalString}'
-      GROUP BY TO_CHAR(created_at, $1)
+      WHERE created_at >= $1
+      GROUP BY TO_CHAR(created_at, '${format}')
       ORDER BY period DESC
     `;
 
-    const result = await pool.query(query, [dateFormat]);
+    const result = await pool.query(query, [startDate]);
     return result.rows;
   } catch (error) {
     throw error;
