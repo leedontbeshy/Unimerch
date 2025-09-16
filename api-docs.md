@@ -644,3 +644,456 @@ Xóa sản phẩm.
 
 ---
 
+## 📦 Order Management APIs
+
+### 🛍️ Order Endpoints
+
+#### POST /api/orders
+**Tạo đơn hàng mới**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+
+
+**Request Body (từ giỏ hàng):**
+```json
+{
+  "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
+  "payment_method": "cod",
+  "from_cart": true
+}
+```
+
+**Request Body (trực tiếp):**
+```json
+{
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2
+    },
+    {
+      "product_id": 2,
+      "quantity": 1
+    }
+  ],
+  "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
+  "payment_method": "banking",
+  "from_cart": false
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Tạo đơn hàng thành công",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "total_amount": 500000,
+    "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
+    "payment_method": "cod",
+    "status": "pending",
+    "items": [...],
+    "payment": {...}
+  }
+}
+```
+
+---
+
+#### GET /api/orders
+**Lấy danh sách đơn hàng của user**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số đơn hàng mỗi trang (default: 10)
+- `status` (string, optional): Lọc theo trạng thái
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy danh sách đơn hàng thành công",
+  "data": {
+    "orders": [...],
+    "pagination": {
+      "current_page": 1,
+      "total_pages": 5,
+      "total_orders": 50,
+      "has_next": true,
+      "has_prev": false
+    }
+  }
+}
+```
+
+---
+
+#### GET /api/orders/:id
+**Lấy chi tiết đơn hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy chi tiết đơn hàng thành công",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "total_amount": 500000,
+    "shipping_address": "123 Đường ABC, Quận 1, TP.HCM",
+    "payment_method": "cod",
+    "status": "pending",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "items": [...],
+    "payments": [...]
+  }
+}
+```
+
+---
+
+#### PUT /api/orders/:id/status
+**Cập nhật trạng thái đơn hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+
+
+**Request Body:**
+```json
+{
+  "status": "processing"
+}
+```
+
+**Valid Statuses:** `pending`, `processing`, `shipped`, `delivered`, `cancelled`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Cập nhật trạng thái đơn hàng thành công",
+  "data": {
+    "id": 1,
+    "status": "processing",
+    "updated_at": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+#### DELETE /api/orders/:id
+**Hủy đơn hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Hủy đơn hàng thành công",
+  "data": {
+    "id": 1,
+    "status": "cancelled"
+  }
+}
+```
+
+---
+
+#### GET /api/orders/:id/items
+**Lấy danh sách items trong đơn hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy danh sách items thành công",
+  "data": [
+    {
+      "id": 1,
+      "order_id": 1,
+      "product_id": 1,
+      "quantity": 2,
+      "price": 250000,
+      "product_name": "iPhone 15"
+    }
+  ]
+}
+```
+
+---
+
+#### GET /api/orders/stats
+**Lấy thống kê đơn hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy thống kê đơn hàng thành công",
+  "data": [
+    {
+      "status": "pending",
+      "count": 5,
+      "total_amount": 1500000
+    },
+    {
+      "status": "completed",
+      "count": 10,
+      "total_amount": 5000000
+    }
+  ]
+}
+```
+
+---
+
+### 👨‍💼 Admin Order APIs
+
+#### GET /api/admin/orders
+**Lấy tất cả đơn hàng (Admin only)**
+
+**Headers:**
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số đơn hàng mỗi trang (default: 20)
+- `status` (string, optional): Lọc theo trạng thái
+- `user_id` (number, optional): Lọc theo user
+
+---
+
+### 🏪 Seller Order APIs
+
+#### GET /api/seller/orders
+**Lấy đơn hàng của seller**
+
+**Headers:**
+Authorization: Bearer <SELLER_JWT_TOKEN>
+
+**Query Parameters:**
+- `page` (number, optional): Trang hiện tại (default: 1)
+- `limit` (number, optional): Số đơn hàng mỗi trang (default: 20)
+- `status` (string, optional): Lọc theo trạng thái
+
+---
+
+## 🛒 Shopping Cart APIs
+
+### 🛍️ Cart Endpoints
+
+#### POST /api/cart/add
+**Thêm sản phẩm vào giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+
+
+**Request Body:**
+```json
+{
+  "product_id": 1,
+  "quantity": 2
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Thêm sản phẩm vào giỏ hàng thành công",
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "product_id": 1,
+    "quantity": 2,
+    "product_name": "iPhone 15",
+    "product_price": 25000000,
+    "product_discount_price": 23000000
+  }
+}
+```
+
+---
+
+#### GET /api/cart
+**Lấy danh sách sản phẩm trong giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy giỏ hàng thành công",
+  "data": {
+    "items": [...],
+    "summary": {
+      "total_items": 5,
+      "total_amount": 1150000,
+      "item_count": 3
+    }
+  }
+}
+```
+
+---
+
+#### PUT /api/cart/update/:id
+**Cập nhật số lượng sản phẩm trong giỏ**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+
+**Request Body:**
+```json
+{
+  "quantity": 3
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Cập nhật số lượng thành công",
+  "data": {
+    "id": 1,
+    "quantity": 3,
+    "updated_at": "2025-01-01T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+#### DELETE /api/cart/remove/:id
+**Xóa sản phẩm khỏi giỏ hàng**
+
+**Headers:**
+
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Xóa sản phẩm khỏi giỏ hàng thành công",
+  "data": {
+    "removed_item_id": 1
+  }
+}
+```
+
+---
+
+#### DELETE /api/cart/clear
+**Xóa toàn bộ giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Đã xóa 3 sản phẩm khỏi giỏ hàng",
+  "data": {
+    "removed_items": 3
+  }
+}
+```
+
+---
+
+#### GET /api/cart/validate
+**Kiểm tra tính khả dụng của giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Kiểm tra giỏ hàng thành công",
+  "data": {
+    "valid_items": [...],
+    "invalid_items": [...],
+    "is_valid": true,
+    "summary": {
+      "total_items": 3,
+      "valid_count": 3,
+      "invalid_count": 0
+    }
+  }
+}
+```
+
+---
+
+#### GET /api/cart/count
+**Lấy số lượng items trong giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy số lượng items thành công",
+  "data": {
+    "total_items": 5,
+    "unique_products": 3
+  }
+}
+```
+
+---
+
+#### GET /api/cart/total
+**Lấy tổng tiền giỏ hàng**
+
+**Headers:**
+Authorization: Bearer <JWT_TOKEN>
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Lấy tổng tiền giỏ hàng thành công",
+  "data": {
+    "total_amount": 1150000,
+    "currency": "VND"
+  }
+}
+```
+
+---
+
