@@ -254,36 +254,39 @@ class Order {
     }
   }
 
-  // Lấy thống kê đơn hàng
-  static async getStats(sellerId = null) {
-    try {
+// Lấy thống kê đơn hàng
+static async getStats(sellerId = null, userId = null) {
+  try {
       let query = `
-        SELECT 
-          status,
-          COUNT(*) as count,
-          SUM(total_amount) as total_amount
-        FROM orders
+          SELECT 
+              status,
+              COUNT(*) as count,
+              SUM(total_amount) as total_amount
+          FROM orders
       `;
 
       const values = [];
+      let paramIndex = 1;
 
       if (sellerId) {
-        query += `
-          JOIN order_items oi ON orders.id = oi.order_id
-          JOIN products p ON oi.product_id = p.id
-          WHERE p.seller_id = $1
-        `;
-        values.push(sellerId);
+          query += `
+              JOIN order_items oi ON orders.id = oi.order_id
+              JOIN products p ON oi.product_id = p.id
+              WHERE p.seller_id = $${paramIndex}
+          `;
+          values.push(sellerId);
+      } else if (userId) {
+          query += ` WHERE user_id = $${paramIndex}`;
+          values.push(userId);
       }
 
       query += ' GROUP BY status ORDER BY status';
 
       const result = await pool.query(query, values);
       return result.rows;
-    } catch (error) {
+  } catch (error) {
       throw error;
-    }
   }
 }
-
+}
 module.exports = Order;

@@ -441,16 +441,14 @@ const getOrderStats = async (req, res) => {
 
         let stats;
         if (userRole === 'admin') {
+            // Admin xem stats toàn hệ thống
             stats = await Order.getStats();
         } else if (userRole === 'seller') {
-            stats = await Order.getStats(userId);
+            // Seller xem stats đơn hàng chứa sản phẩm của mình
+            stats = await Order.getStats(userId, null);
         } else {
-            // User stats
-            const userStats = await Order.getStats();
-            stats = userStats.filter(stat => {
-                // Chỉ lấy stats của user hiện tại
-                return true; // Cần implement logic lọc theo user
-            });
+            // User thường chỉ xem stats đơn hàng của mình
+            stats = await Order.getStats(null, userId);
         }
 
         return successResponse(res, stats, 'Lấy thống kê đơn hàng thành công');
