@@ -343,7 +343,6 @@ const getRevenue = async (req, res) => {
         return errorResponse(res, 'Lỗi khi lấy doanh thu', 500);
     }
 };
-
 // 9. POST /api/payments/:id/refund - Hoàn tiền payment
 const refundPayment = async (req, res) => {
     try {
@@ -391,6 +390,7 @@ const refundPayment = async (req, res) => {
         return errorResponse(res, 'Lỗi khi hoàn tiền', 500);
     }
 };
+
 
 module.exports = {
     createPayment,

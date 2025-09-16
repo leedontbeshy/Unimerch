@@ -264,49 +264,87 @@ class Payment {
     }
   }
 
-  // Lấy doanh thu theo thời gian
-  static async getRevenueByPeriod(period = 'day', limit = 30) {
-    try {
-      let dateFormat;
-      switch (period) {
-        case 'hour':
-          dateFormat = 'YYYY-MM-DD HH24:00:00';
-          break;
-        case 'day':
-          dateFormat = 'YYYY-MM-DD';
-          break;
-        case 'week':
-          dateFormat = 'YYYY-"W"WW';
-          break;
-        case 'month':
-          dateFormat = 'YYYY-MM';
-          break;
-        case 'year':
-          dateFormat = 'YYYY';
-          break;
-        default:
-          dateFormat = 'YYYY-MM-DD';
-      }
-
-      const query = `
-        SELECT 
-          TO_CHAR(created_at, $1) as period,
-          COUNT(*) as transaction_count,
-          SUM(amount) as total_revenue,
-          COUNT(CASE WHEN payment_status = 'completed' THEN 1 END) as successful_count,
-          SUM(CASE WHEN payment_status = 'completed' THEN amount ELSE 0 END) as successful_revenue
-        FROM payments
-        WHERE created_at >= NOW() - INTERVAL '${limit} ${period}s'
-        GROUP BY TO_CHAR(created_at, $1)
-        ORDER BY period DESC
-      `;
-
-      const result = await pool.query(query, [dateFormat]);
-      return result.rows;
-    } catch (error) {
-      throw error;
+// Lấy doanh thu theo thời gian
+static async getRevenueByPeriod(period = 'day', limit = 30) {
+  try {
+    // BƯỚC 1: Validation whitelist cho period (ngăn SQL injection)
+    const validPeriods = ['hour', 'day', 'week', 'month', 'year'];
+    if (!validPeriods.includes(period)) {
+      throw new Error(`Invalid period. Must be one of: ${validPeriods.join(', ')}`);
     }
+
+    // BƯỚC 2: Validation cho limit
+    const parsedLimit = parseInt(limit);
+    if (isNaN(parsedLimit) || parsedLimit <= 0 || parsedLimit > 365) {
+      throw new Error('Invalid limit. Must be a positive integer between 1 and 365');
+    }
+
+    // BƯỚC 3: Tạo date format an toàn
+    let dateFormat;
+    switch (period) {
+      case 'hour':
+        dateFormat = 'YYYY-MM-DD HH24:00:00';
+        break;
+      case 'day':
+        dateFormat = 'YYYY-MM-DD';
+        break;
+      case 'week':
+        dateFormat = 'YYYY-"W"WW';
+        break;
+      case 'month':
+        dateFormat = 'YYYY-MM';
+        break;
+      case 'year':
+        dateFormat = 'YYYY';
+        break;
+      default:
+        dateFormat = 'YYYY-MM-DD';
+    }
+
+    // BƯỚC 4: Tạo interval string an toàn với số nhiều đúng
+    let intervalUnit;
+    switch (period) {
+      case 'hour':
+        intervalUnit = 'hours';
+        break;
+      case 'day':
+        intervalUnit = 'days';
+        break;
+      case 'week':
+        intervalUnit = 'weeks';
+        break;
+      case 'month':
+        intervalUnit = 'months';
+        break;
+      case 'year':
+        intervalUnit = 'years';
+        break;
+      default:
+        intervalUnit = 'days';
+    }
+    
+    const intervalString = `${parsedLimit} ${intervalUnit}`;
+
+    // BƯỚC 5: Query với parameterized values cho format và string concatenation cho interval
+    const query = `
+      SELECT 
+        TO_CHAR(created_at, $1) as period,
+        COUNT(*) as transaction_count,
+        SUM(amount) as total_revenue,
+        COUNT(CASE WHEN payment_status = 'completed' THEN 1 END) as successful_count,
+        SUM(CASE WHEN payment_status = 'completed' THEN amount ELSE 0 END) as successful_revenue
+      FROM payments
+      WHERE created_at >= NOW() - INTERVAL '${intervalString}'
+      GROUP BY TO_CHAR(created_at, $1)
+      ORDER BY period DESC
+    `;
+
+    const result = await pool.query(query, [dateFormat]);
+    return result.rows;
+  } catch (error) {
+    throw error;
   }
+}
 
   // Đếm tổng số payments
   static async count(status = null, startDate = null, endDate = null) {
