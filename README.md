@@ -457,4 +457,4 @@ npm run dev
 
 ---
 
-*Made with ❤️ for University Communities / Được tạo với ❤️ dành cho Cộng Đồng Đại Học*
+*Made with ❤️*
