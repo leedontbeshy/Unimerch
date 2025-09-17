@@ -7,7 +7,7 @@ const { requireAdmin } = require('./middleware/role');
 const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
 const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
 const { requireSellerOrAdmin } = require('./middleware/role');
-const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts } = require('./controllers/productController');
+const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts, getProductsByColorSize } = require('./controllers/productController');
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats } = require('./controllers/orderController');
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
 const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
@@ -57,8 +57,8 @@ server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCate
 
 // Product routes
 server.get('/api/products', getProducts);
+server.get('/api/products/search', getProductsByColorSize); // Thêm route mới
 server.get('/api/products/featured', getFeaturedProducts);
-server.get('/api/products/seller/:seller_id', getProductsBySeller);
 server.get('/api/products/:id', getProductById);
 server.post('/api/products', authenticateToken, requireSellerOrAdmin, createProduct);
 server.put('/api/products/:id', authenticateToken, requireSellerOrAdmin, updateProduct);

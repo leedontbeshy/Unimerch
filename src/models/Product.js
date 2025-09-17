@@ -19,7 +19,7 @@ class Product {
             let query = `
                 SELECT 
                     p.id, p.name, p.description, p.price, p.discount_price, 
-                    p.quantity, p.image_url, p.status, p.created_at, p.updated_at,
+                    p.quantity, p.image_url, p.color, p.size, p.status, p.created_at, p.updated_at,
                     c.name as category_name,
                     u.username as seller_name,
                     u.full_name as seller_full_name
@@ -146,7 +146,7 @@ class Product {
             const result = await pool.query(`
                 SELECT 
                     p.id, p.name, p.description, p.price, p.discount_price, 
-                    p.quantity, p.image_url, p.status, p.created_at, p.updated_at,
+                    p.quantity, p.image_url, p.color, p.size, p.status, p.created_at, p.updated_at,
                     p.category_id, p.seller_id,
                     c.name as category_name,
                     u.username as seller_name,
@@ -165,7 +165,6 @@ class Product {
         }
     }
 
-    // Tạo sản phẩm mới
     static async create(productData) {
         try {
             const { 
@@ -176,14 +175,16 @@ class Product {
                 quantity, 
                 image_url, 
                 category_id, 
-                seller_id 
+                seller_id,
+                color,
+                size
             } = productData;
 
             const result = await pool.query(`
                 INSERT INTO products (
                     name, description, price, discount_price, quantity, 
-                    image_url, category_id, seller_id, status, created_at, updated_at
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    image_url, category_id, seller_id, color, size, status, created_at, updated_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'available', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 RETURNING *
             `, [
                 name, 
@@ -193,7 +194,9 @@ class Product {
                 quantity || 0, 
                 image_url || null, 
                 category_id, 
-                seller_id
+                seller_id,
+                color || null,
+                size || null
             ]);
 
             return result.rows[0];
@@ -213,7 +216,9 @@ class Product {
                 quantity, 
                 image_url, 
                 category_id,
-                status
+                status,
+                color,
+                size
             } = productData;
 
             // Kiểm tra quyền sở hữu nếu có sellerId
@@ -221,8 +226,8 @@ class Product {
                 UPDATE products 
                 SET name = $1, description = $2, price = $3, discount_price = $4, 
                     quantity = $5, image_url = $6, category_id = $7, status = $8,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = $9
+                    color = $9, size = $10, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $11
             `;
             let params = [
                 name, 
@@ -233,12 +238,14 @@ class Product {
                 image_url || null, 
                 category_id,
                 status || 'available',
+                color || null,
+                size || null,
                 id
             ];
 
             // Nếu là seller, chỉ cho phép cập nhật sản phẩm của chính mình
             if (sellerId) {
-                query += ` AND seller_id = $10`;
+                query += ` AND seller_id = $12`;
                 params.push(sellerId);
             }
 
@@ -250,6 +257,63 @@ class Product {
             throw error;
         }
     }
+
+    // Thêm method tìm kiếm theo color và size
+    static async findByColorAndSize(options = {}) {
+        try {
+            const {
+                page = 1,
+                limit = 20,
+                category_id = null,
+                color = null,
+                size = null,
+                status = 'available'
+            } = options;
+
+            const offset = (page - 1) * limit;
+            let query = `
+                SELECT 
+                    p.id, p.name, p.description, p.price, p.discount_price, 
+                    p.quantity, p.image_url, p.color, p.size, p.status, p.created_at,
+                    c.name as category_name,
+                    u.username as seller_name
+                FROM products p
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN users u ON p.seller_id = u.id
+                WHERE p.status = $1
+            `;
+            
+            const params = [status];
+            let paramIndex = 2;
+
+            if (category_id) {
+                query += ` AND p.category_id = $${paramIndex}`;
+                params.push(category_id);
+                paramIndex++;
+            }
+
+            if (color) {
+                query += ` AND LOWER(p.color) = LOWER($${paramIndex})`;
+                params.push(color);
+                paramIndex++;
+            }
+
+            if (size) {
+                query += ` AND LOWER(p.size) = LOWER($${paramIndex})`;
+                params.push(size);
+                paramIndex++;
+            }
+
+            query += ` ORDER BY p.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+            params.push(limit, offset);
+
+            const result = await pool.query(query, params);
+            return result.rows;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 
     // Xóa sản phẩm
     static async delete(id, sellerId = null) {
@@ -285,7 +349,7 @@ class Product {
             let query = `
                 SELECT 
                     p.id, p.name, p.description, p.price, p.discount_price, 
-                    p.quantity, p.image_url, p.status, p.created_at, p.updated_at,
+                    p.quantity, p.image_url, p.color, p.size, p.status, p.created_at, p.updated_at,
                     c.name as category_name
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
@@ -339,7 +403,7 @@ class Product {
             const result = await pool.query(`
                 SELECT 
                     p.id, p.name, p.description, p.price, p.discount_price, 
-                    p.quantity, p.image_url, p.status, p.created_at,
+                    p.quantity, p.image_url, p.color, p.size, p.status, p.created_at,
                     c.name as category_name,
                     u.username as seller_name
                 FROM products p
@@ -377,5 +441,7 @@ class Product {
         }
     }
 }
+
+
 
 module.exports = Product;

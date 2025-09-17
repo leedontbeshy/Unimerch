@@ -68,7 +68,9 @@ const createProduct = async (req, res) => {
             discount_price,
             quantity,
             image_url,
-            category_id
+            category_id,
+            color,
+            size
         } = req.body;
 
         // Validation
@@ -98,7 +100,9 @@ const createProduct = async (req, res) => {
             quantity: quantity ? parseInt(quantity) : 0,
             image_url: image_url ? image_url.trim() : null,
             category_id: parseInt(category_id),
-            seller_id: req.user.id
+            seller_id: req.user.id,
+            color: color ? color.trim() : null,
+            size: size ? size.trim() : null
         };
 
         const newProduct = await Product.create(productData);
@@ -122,7 +126,9 @@ const updateProduct = async (req, res) => {
             quantity,
             image_url,
             category_id,
-            status
+            status,
+            color,
+            size
         } = req.body;
 
         if (!id || isNaN(id)) {
@@ -162,7 +168,9 @@ const updateProduct = async (req, res) => {
             quantity: quantity !== undefined ? parseInt(quantity) : existingProduct.quantity,
             image_url: image_url ? image_url.trim() : existingProduct.image_url,
             category_id: parseInt(category_id),
-            status: status || existingProduct.status
+            status: status || existingProduct.status,
+            color: color ? color.trim() : existingProduct.color,
+            size: size ? size.trim() : existingProduct.size
         };
 
         // Nếu là seller, chỉ cho phép cập nhật sản phẩm của chính mình
@@ -255,6 +263,32 @@ const getFeaturedProducts = async (req, res) => {
     }
 };
 
+// Thêm API để tìm kiếm theo color và size
+const getProductsByColorSize = async (req, res) => {
+    try {
+        const { 
+            page = 1, 
+            limit = 20, 
+            category_id, 
+            color, 
+            size 
+        } = req.query;
+
+        const products = await Product.findByColorAndSize({
+            page: parseInt(page),
+            limit: parseInt(limit),
+            category_id: category_id ? parseInt(category_id) : null,
+            color,
+            size
+        });
+
+        return successResponse(res, products, 'Lấy sản phẩm thành công');
+    } catch (error) {
+        console.error('Get products by color/size error:', error);
+        return errorResponse(res, 'Lỗi khi lấy sản phẩm', 500);
+    }
+};
+
 module.exports = {
     getProducts,
     getProductById,
@@ -262,5 +296,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     getProductsBySeller,
-    getFeaturedProducts
+    getFeaturedProducts,
+    getProductsByColorSize
 };
