@@ -30,7 +30,8 @@
 - Comprehensive product management
 - Category-based organization
 - Multi-seller support with seller profiles
-- Product search and filtering
+- Advanced search system with filters and autocomplete
+- Real-time product search across multiple criteria
 - Inventory management with stock tracking
 - Featured products showcase
 
@@ -52,6 +53,14 @@
 - Payment status tracking
 - Revenue analytics and reporting
 - Refund processing system
+
+#### 🔍 **Advanced Search System**
+- Global search across products, categories, users, orders, and reviews
+- Intelligent autocomplete and suggestions
+- Multi-criteria filtering and sorting
+- Search history and analytics
+- Real-time search results with pagination
+- Category-specific search optimization
 
 #### 📊 **Analytics & Reporting**
 - Sales analytics and revenue tracking
@@ -136,6 +145,7 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 - **Authentication:** `/api/auth/*` - Registration, login, logout, password reset
 - **Users:** `/api/users/*` - Profile management, admin user operations
 - **Products:** `/api/products/*` - Product catalog, CRUD operations
+- **Search:** `/api/search/*` - Advanced search, filters, autocomplete
 - **Cart:** `/api/cart/*` - Shopping cart management
 - **Orders:** `/api/orders/*` - Order creation, tracking, management
 - **Payments:** `/api/payments/*` - Payment processing, refunds
@@ -157,7 +167,7 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 
 #### **Test Sequence:**
 ```
-Authentication → User Profile → Products → Cart → Orders → Payments
+Authentication → User Profile → Products → Search → Cart → Orders → Payments
 ```
 
 ### 📁 Project Structure
@@ -172,9 +182,21 @@ WebDevFinal/
 │   │   ├── response.js       # Response formatting
 │   │   └── middleware.js     # Middleware pipeline
 │   ├── 📂 controllers/       # API endpoint handlers
+│   │   ├── searchController.js  # Advanced search endpoints
+│   │   ├── authController.js    # Authentication endpoints
+│   │   ├── productController.js # Product management
+│   │   └── ...              # Other controllers
 │   ├── 📂 models/           # Database models
+│   │   └── 📂 search/       # Specialized search models
+│   ├── 📂 services/         # Business logic layer
+│   │   ├── 📂 search/       # Search services and helpers
+│   │   ├── 📂 order/        # Order processing helpers
+│   │   └── ...              # Other services
+│   ├── 📂 validation/       # Input validation schemas
 │   ├── 📂 middleware/       # Custom middleware functions
 │   └── 📂 utils/            # Utility functions
+│       ├── SearchQueryBuilder.js # Advanced search utilities
+│       └── ...              # Other utilities
 ├── 📂 config/               # Configuration files
 ├── 📂 test/                # Test files
 ├── 📄 db.txt               # Database schema
@@ -226,7 +248,8 @@ WebDevFinal/
 - Quản lý sản phẩm toàn diện
 - Tổ chức theo danh mục
 - Hỗ trợ đa người bán với hồ sơ seller
-- Tìm kiếm và lọc sản phẩm
+- Hệ thống tìm kiếm nâng cao với filter và autocomplete
+- Tìm kiếm sản phẩm thời gian thực theo nhiều tiêu chí
 - Quản lý tồn kho với theo dõi số lượng
 - Showcase sản phẩm nổi bật
 
@@ -248,6 +271,14 @@ WebDevFinal/
 - Theo dõi trạng thái thanh toán
 - Phân tích doanh thu và báo cáo
 - Hệ thống xử lý hoàn tiền
+
+#### 🔍 **Hệ Thống Tìm Kiếm Nâng Cao**
+- Tìm kiếm  sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
+- Tự động hoàn thành và gợi ý thông minh
+- Lọc và sắp xếp đa tiêu chí
+- Lịch sử tìm kiếm và phân tích
+- Kết quả tìm kiếm thời gian thực với phân trang
+- Tối ưu hóa tìm kiếm theo danh mục cụ thể
 
 #### 📊 **Phân Tích & Báo Cáo**
 - Phân tích bán hàng và theo dõi doanh thu
@@ -332,6 +363,7 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 - **Xác thực:** `/api/auth/*` - Đăng ký, đăng nhập, đăng xuất, reset password
 - **Người dùng:** `/api/users/*` - Quản lý hồ sơ, thao tác admin
 - **Sản phẩm:** `/api/products/*` - Danh mục sản phẩm, thao tác CRUD
+- **Tìm kiếm:** `/api/search/*` - Tìm kiếm nâng cao, filter, autocomplete
 - **Giỏ hàng:** `/api/cart/*` - Quản lý giỏ hàng
 - **Đơn hàng:** `/api/orders/*` - Tạo đơn, theo dõi, quản lý
 - **Thanh toán:** `/api/payments/*` - Xử lý thanh toán, hoàn tiền
@@ -353,7 +385,7 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 
 #### **Trình Tự Test:**
 ```
-Authentication → User Profile → Products → Cart → Orders → Payments
+Authentication → User Profile → Products → Search → Cart → Orders → Payments
 ```
 
 ### 📁 Cấu Trúc Project
@@ -368,9 +400,21 @@ WebDevFinal/
 │   │   ├── response.js       # Định dạng response
 │   │   └── middleware.js     # Pipeline middleware
 │   ├── 📂 controllers/       # Xử lý API endpoint
+│   │   ├── searchController.js  # Endpoint tìm kiếm nâng cao
+│   │   ├── authController.js    # Endpoint xác thực
+│   │   ├── productController.js # Quản lý sản phẩm
+│   │   └── ...              # Controller khác
 │   ├── 📂 models/           # Database models
+│   │   └── 📂 search/       # Model tìm kiếm chuyên biệt
+│   ├── 📂 services/         # Tầng logic nghiệp vụ
+│   │   ├── 📂 search/       # Dịch vụ và helper tìm kiếm
+│   │   ├── 📂 order/        # Helper xử lý đơn hàng
+│   │   └── ...              # Dịch vụ khác
+│   ├── 📂 validation/       # Schema validation đầu vào
 │   ├── 📂 middleware/       # Hàm middleware tùy chỉnh
 │   └── 📂 utils/            # Hàm tiện ích
+│       ├── SearchQueryBuilder.js # Tiện ích tìm kiếm nâng cao
+│       └── ...              # Tiện ích khác
 ├── 📂 config/               # File cấu hình
 ├── 📂 test/                # File test
 ├── 📄 db.txt               # Schema database
@@ -438,6 +482,7 @@ npm run dev
 3. **Test Core Features** / **Test Tính Năng Cốt Lõi**
    ```
    GET /api/products
+   GET /api/search/products
    POST /api/cart/add
    POST /api/orders
    POST /api/payments
