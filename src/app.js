@@ -4,7 +4,8 @@ const { testConnection } = require('../config/database');
 const { authenticateToken } = require('./middleware/auth');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./validation/authValidation');
 const { requireAdmin } = require('./middleware/role');
-const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
+const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById, getUserStats } = require('./controllers/userController');
+const { validateUpdateProfile, validateChangePassword, validateUserId, validateUsersQuery, validateUpdateUserByAdmin } = require('./validation/userValidation');
 const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
 const { validateCreateCategory, validateUpdateCategory, validateCategoryId } = require('./validation/categoryValidation');
 const { requireSellerOrAdmin } = require('./middleware/role');
@@ -44,12 +45,13 @@ server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 
 // User Management routes
 server.get('/api/users/profile', authenticateToken, getProfile);
-server.put('/api/users/profile', authenticateToken, updateProfile);
-server.put('/api/users/change-password', authenticateToken, changePassword);
-server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
-server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
-server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
-server.delete('/api/users/:id', authenticateToken, requireAdmin, deleteUserById);
+server.put('/api/users/profile', authenticateToken, validateUpdateProfile, updateProfile);
+server.put('/api/users/change-password', authenticateToken, validateChangePassword, changePassword);
+server.get('/api/users/stats', authenticateToken, requireAdmin, getUserStats);
+server.get('/api/users', authenticateToken, requireAdmin, validateUsersQuery, getAllUsers);
+server.get('/api/users/:id', authenticateToken, requireAdmin, validateUserId, getUserById);
+server.put('/api/users/:id', authenticateToken, requireAdmin, validateUpdateUserByAdmin, updateUserById);
+server.delete('/api/users/:id', authenticateToken, requireAdmin, validateUserId, deleteUserById);
 
 // Category routes
 server.get('/api/categories', getCategories);
