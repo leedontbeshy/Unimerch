@@ -6,6 +6,7 @@ const { validateRegister, validateLogin, validateForgotPassword, validateResetPa
 const { requireAdmin } = require('./middleware/role');
 const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
 const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
+const { validateCreateCategory, validateUpdateCategory, validateCategoryId } = require('./validation/categoryValidation');
 const { requireSellerOrAdmin } = require('./middleware/role');
 const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts, getProductsByColorSize } = require('./controllers/productController');
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats } = require('./controllers/orderController');
@@ -52,10 +53,10 @@ server.delete('/api/users/:id', authenticateToken, requireAdmin, deleteUserById)
 
 // Category routes
 server.get('/api/categories', getCategories);
-server.get('/api/categories/:id', getCategoryById);
-server.post('/api/categories', authenticateToken, requireSellerOrAdmin, createCategory);
-server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, updateCategory);
-server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCategory);
+server.get('/api/categories/:id', validateCategoryId, getCategoryById);
+server.post('/api/categories', authenticateToken, requireSellerOrAdmin, validateCreateCategory, createCategory);
+server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, validateUpdateCategory, updateCategory);
+server.delete('/api/categories/:id', authenticateToken, requireAdmin, validateCategoryId, deleteCategory);
 
 // Product routes
 server.get('/api/products', getProducts);
