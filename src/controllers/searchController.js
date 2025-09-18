@@ -141,7 +141,7 @@ const getSearchFilters = async (req, res) => {
  */
 const getSearchStats = async (req, res) => {
     try {
-        const stats = SearchHelperService.getSearchStats();
+        const stats = await SearchHelperService.getSearchStats();
 
         return successResponse(res, stats, 'Lấy thống kê tìm kiếm thành công');
     } catch (error) {
