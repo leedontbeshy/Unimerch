@@ -11,6 +11,7 @@ const { getProducts, getProductById, createProduct, updateProduct, deleteProduct
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats } = require('./controllers/orderController');
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
 const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
+const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
 
 require('dotenv').config();
 
@@ -101,6 +102,23 @@ server.get('/api/payments/:orderId', authenticateToken, getPaymentsByOrderId); /
 
 // Admin payment routes
 server.get('/api/admin/payments', authenticateToken, requireAdmin, getAllPayments);
+
+// Review routes
+server.get('/api/reviews', getReviews);
+server.get('/api/reviews/my-reviews', authenticateToken, getMyReviews);
+server.get('/api/reviews/top-products', getTopRatedProducts);
+server.get('/api/reviews/:id', getReviewById);
+server.post('/api/reviews', authenticateToken, createReview);
+server.put('/api/reviews/:id', authenticateToken, updateReview);
+server.delete('/api/reviews/:id', authenticateToken, deleteReview);
+
+// Product review routes
+server.get('/api/reviews/product/:product_id', getReviewsByProduct);
+server.get('/api/reviews/product/:product_id/stats', getProductRatingStats);
+server.get('/api/reviews/check/:product_id', authenticateToken, checkUserReviewed);
+
+// Admin review routes
+server.get('/api/reviews/user/:user_id', authenticateToken, requireAdmin, getReviewsByUser);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
