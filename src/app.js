@@ -9,6 +9,7 @@ const { getCategories, getCategoryById, createCategory, updateCategory, deleteCa
 const { requireSellerOrAdmin } = require('./middleware/role');
 const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts, getProductsByColorSize } = require('./controllers/productController');
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats } = require('./controllers/orderController');
+const { validateCreateOrder, validateUpdateOrderStatus, validateOrderId, validateOrdersQuery } = require('./validation/orderValidation');
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
 const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
 const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
@@ -18,7 +19,7 @@ require('dotenv').config();
 // Tạo server instance
 const server = new NodeServer();
 
-// Test database connection (GIỮ NGUYÊN - từ database config)
+// Test database connection 
 testConnection();
 
 // Basic middleware for logging
@@ -66,19 +67,19 @@ server.put('/api/products/:id', authenticateToken, requireSellerOrAdmin, updateP
 server.delete('/api/products/:id', authenticateToken, requireSellerOrAdmin, deleteProduct);
 
 // Order routes
-server.post('/api/orders', authenticateToken, createOrder);
-server.get('/api/orders', authenticateToken, getUserOrders);
+server.post('/api/orders', authenticateToken, validateCreateOrder, createOrder);
+server.get('/api/orders', authenticateToken, validateOrdersQuery, getUserOrders);
 server.get('/api/orders/stats', authenticateToken, getOrderStats);
-server.get('/api/orders/:id', authenticateToken, getOrderById);
-server.put('/api/orders/:id/status', authenticateToken, updateOrderStatus);
-server.delete('/api/orders/:id', authenticateToken, cancelOrder);
-server.get('/api/orders/:id/items', authenticateToken, getOrderItems);
+server.get('/api/orders/:id', authenticateToken, validateOrderId, getOrderById);
+server.put('/api/orders/:id/status', authenticateToken, validateUpdateOrderStatus, updateOrderStatus);
+server.delete('/api/orders/:id', authenticateToken, validateOrderId, cancelOrder);
+server.get('/api/orders/:id/items', authenticateToken, validateOrderId, getOrderItems);
 
 // Admin order routes
-server.get('/api/admin/orders', authenticateToken, requireAdmin, getAllOrders);
+server.get('/api/admin/orders', authenticateToken, requireAdmin, validateOrdersQuery, getAllOrders);
 
 // Seller order routes
-server.get('/api/seller/orders', authenticateToken, requireSellerOrAdmin, getSellerOrders);
+server.get('/api/seller/orders', authenticateToken, requireSellerOrAdmin, validateOrdersQuery, getSellerOrders);
 
 // Shopping Cart routes
 server.post('/api/cart/add', authenticateToken, addToCart);
