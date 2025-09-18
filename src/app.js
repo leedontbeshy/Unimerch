@@ -15,6 +15,8 @@ const { validateCreateOrder, validateUpdateOrderStatus, validateOrderId, validat
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
 const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
 const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
+const { searchProducts, searchCategories, searchUsers, searchOrders, searchReviews, globalSearch, getSuggestions, getPopularKeywords, getSearchFilters, getSearchStats } = require('./controllers/searchController');
+const { validateProductSearch, validateCategorySearch, validateUserSearch, validateOrderSearch, validateReviewSearch, validateGlobalSearch } = require('./validation/searchValidation');
 
 require('dotenv').config();
 
@@ -123,6 +125,18 @@ server.get('/api/reviews/check/:product_id', authenticateToken, checkUserReviewe
 
 // Admin review routes
 server.get('/api/reviews/user/:user_id', authenticateToken, requireAdmin, getReviewsByUser);
+
+// Search routes
+server.get('/api/search/products', validateProductSearch, searchProducts);
+server.get('/api/search/categories', validateCategorySearch, searchCategories);
+server.get('/api/search/users', authenticateToken, requireAdmin, validateUserSearch, searchUsers);
+server.get('/api/search/orders', authenticateToken, validateOrderSearch, searchOrders);
+server.get('/api/search/reviews', validateReviewSearch, searchReviews);
+server.get('/api/search/global', validateGlobalSearch, globalSearch);
+server.get('/api/search/suggestions', getSuggestions);
+server.get('/api/search/popular', getPopularKeywords);
+server.get('/api/search/filters', getSearchFilters);
+server.get('/api/search/stats', authenticateToken, requireAdmin, getSearchStats);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
