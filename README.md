@@ -8,7 +8,7 @@
 
 ### 🌟 Overview
 
-**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js (no frameworks like Express), this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
+**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js , this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
 
 🌐 **Live API:** https://api.unimerch.space
 
@@ -22,7 +22,6 @@
 
 #### 👥 **User Management**
 - User registration and profile management
-- Student ID verification system
 - Role-based permissions and access levels
 - Admin user management capabilities
 
@@ -155,7 +154,7 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 ### 🧪 Testing
 
 #### **Postman Testing**
-1. Import API collection from `api-docs.md`
+1. Import API collection from `api-docs.md` (updating)
 2. Set environment variables:
    ```
    baseURL: http://localhost:3000
@@ -174,34 +173,108 @@ Authentication → User Profile → Products → Search → Cart → Orders → 
 
 ```
 WebDevFinal/
-├── 📂 src/
-│   ├── 📂 core/              # Core system components
-│   │   ├── server.js         # Custom HTTP server
-│   │   ├── router.js         # Custom routing system
-│   │   ├── request.js        # Request handling
-│   │   ├── response.js       # Response formatting
-│   │   └── middleware.js     # Middleware pipeline
-│   ├── 📂 controllers/       # API endpoint handlers
-│   │   ├── searchController.js  # Advanced search endpoints
-│   │   ├── authController.js    # Authentication endpoints
-│   │   ├── productController.js # Product management
-│   │   └── ...              # Other controllers
-│   ├── 📂 models/           # Database models
-│   │   └── 📂 search/       # Specialized search models
-│   ├── 📂 services/         # Business logic layer
-│   │   ├── 📂 search/       # Search services and helpers
-│   │   ├── 📂 order/        # Order processing helpers
-│   │   └── ...              # Other services
-│   ├── 📂 validation/       # Input validation schemas
-│   ├── 📂 middleware/       # Custom middleware functions
-│   └── 📂 utils/            # Utility functions
-│       ├── SearchQueryBuilder.js # Advanced search utilities
-│       └── ...              # Other utilities
-├── 📂 config/               # Configuration files
-├── 📂 test/                # Test files
-├── 📄 db.txt               # Database schema
-├── 📄 api-docs.md          # API documentation
-└── 📄 server.js            # Application entry point
+├── 📄 server.js                    # Entry point chính
+├── 📄 package.json                 # Dependencies và scripts
+├── 📄 README.md                    # Tài liệu project
+├── 📄 api-docs.md                  # Tài liệu API chi tiết
+├── 📄 db.txt                       # Database schema
+│
+├── 📂 config/                      # Cấu hình hệ thống
+│   ├── config.js                   # Cấu hình chung
+│   └── database.js                 # Cấu hình database
+│
+├── 📂 src/                         # Source code chính
+│   ├── 📄 app.js                   # Application setup
+│   │
+│   ├── 📂 core/                    # Hệ thống cốt lõi (Custom Framework)
+│   │   ├── server.js               # HTTP server tùy chỉnh
+│   │   ├── router.js               # Routing system
+│   │   ├── request.js              # Request handling
+│   │   ├── response.js             # Response formatting
+│   │   └── middleware.js           # Middleware pipeline
+│   │
+│   ├── 📂 controllers/             # API Controllers
+│   │   ├── authController.js       # Xác thực
+│   │   ├── userController.js       # Quản lý user
+│   │   ├── productController.js    # Quản lý sản phẩm
+│   │   ├── searchController.js     # Tìm kiếm nâng cao
+│   │   ├── cartController.js       # Giỏ hàng
+│   │   ├── orderController.js      # Đơn hàng
+│   │   ├── paymentController.js    # Thanh toán
+│   │   ├── categoryController.js   # Danh mục
+│   │   ├── reviewController.js     # Đánh giá
+│   │   ├── statsController.js      # Thống kê
+│   │   └── uploadController.js     # Upload file
+│   │
+│   ├── 📂 models/                  # Database Models
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   ├── Order.js
+│   │   ├── OrderItem.js
+│   │   ├── Payment.js
+│   │   ├── Category.js
+│   │   ├── Review.js
+│   │   ├── ShoppingCart.js
+│   │   ├── BlacklistedToken.js
+│   │   ├── ResetToken.js
+│   │   └── 📂 search/              # Search Models
+│   │       ├── CategorySearchModel.js
+│   │       ├── OrderSearchModel.js
+│   │       ├── ProductSearchModel.js
+│   │       ├── ReviewSearchModel.js
+│   │       └── UserSearchModel.js
+│   │
+│   ├── 📂 services/                # Business Logic Layer
+│   │   ├── authService.js
+│   │   ├── userService.js
+│   │   ├── productService.js
+│   │   ├── cartService.js
+│   │   ├── orderService.js
+│   │   ├── paymentService.js
+│   │   ├── categoryService.js
+│   │   ├── reviewService.js
+│   │   ├── 📂 search/              # Search Services
+│   │   │   ├── GlobalSearchService.js
+│   │   │   ├── ProductSearchService.js
+│   │   │   ├── CategorySearchService.js
+│   │   │   ├── OrderSearchService.js
+│   │   │   ├── ReviewSearchService.js
+│   │   │   ├── UserSearchService.js
+│   │   │   └── SearchHelperService.js
+│   │   └── 📂 order/               # Order Helpers
+│   │       └── orderHelper.js
+│   │
+│   ├── 📂 middleware/              # Custom Middleware
+│   │   ├── auth.js                 # Authentication middleware
+│   │   ├── role.js                 # Role-based access
+│   │   ├── upload.js               # File upload
+│   │   └── validation.js           # Input validation
+│   │
+│   ├── 📂 validation/              # Validation Schemas
+│   │   ├── authValidation.js
+│   │   ├── userValidation.js
+│   │   ├── productValidation.js
+│   │   ├── cartValidation.js
+│   │   ├── orderValidation.js
+│   │   ├── paymentValidation.js
+│   │   ├── categoryValidation.js
+│   │   ├── reviewValidation.js
+│   │   └── searchValidation.js
+│   │
+│   ├── 📂 utils/                   # Utility Functions
+│   │   ├── bcrypt.js               # Password hashing
+│   │   ├── jwt.js                  # JWT handling
+│   │   ├── email.js                # Email service
+│   │   ├── response.js             # Response helpers
+│   │   ├── validator.js            # Validation helpers
+│   │   ├── constants.js            # App constants
+│   │   └── SearchQueryBuilder.js   # Advanced search utilities
+│   
+│   
+│
+└── 📂 test/                        # Test Files
+    ├── supabase_test_connection.js
+    └── test-user-model.js
 ```
 
 ### 🤝 Contributing
@@ -226,7 +299,7 @@ WebDevFinal/
 
 ### 🌟 Tổng Quan
 
-**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần (không sử dụng framework như Express), API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
+**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần , API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
 
 🌐 **API Trực Tuyến:** https://api.unimerch.space
 
@@ -240,7 +313,6 @@ WebDevFinal/
 
 #### 👥 **Quản Lý Người Dùng**
 - Đăng ký và quản lý hồ sơ người dùng
-- Hệ thống xác minh mã số sinh viên
 - Phân quyền theo vai trò và cấp độ truy cập
 - Khả năng quản lý người dùng cho Admin
 
@@ -289,7 +361,7 @@ WebDevFinal/
 ### 🛠️ Công Nghệ Sử Dụng
 
 #### **Công Nghệ Cốt Lõi**
-- **Backend:** Node.js thuần (Không sử dụng framework Express.js)
+- **Backend:** Node.js thuần 
 - **Cơ Sở Dữ Liệu:** PostgreSQL với hosting Supabase
 - **Xác Thực:** JSON Web Tokens (JWT)
 - **Bảo Mật Mật Khẩu:** Mã hóa bcryptjs
@@ -373,7 +445,7 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 ### 🧪 Testing
 
 #### **Testing với Postman**
-1. Import API collection từ `api-docs.md`
+1. Import API collection từ `api-docs.md` (đang cập nhật)
 2. Thiết lập biến môi trường:
    ```
    baseURL: http://localhost:3000
@@ -385,41 +457,116 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 
 #### **Trình Tự Test:**
 ```
-Authentication → User Profile → Products → Search → Cart → Orders → Payments
+Authentication → User Profile → Products → Search → Cart → Orders → Payments -> Reviews ->
 ```
 
 ### 📁 Cấu Trúc Project
 
 ```
 WebDevFinal/
-├── 📂 src/
-│   ├── 📂 core/              # Thành phần hệ thống cốt lõi
-│   │   ├── server.js         # HTTP server tùy chỉnh
-│   │   ├── router.js         # Hệ thống routing tùy chỉnh
-│   │   ├── request.js        # Xử lý request
-│   │   ├── response.js       # Định dạng response
-│   │   └── middleware.js     # Pipeline middleware
-│   ├── 📂 controllers/       # Xử lý API endpoint
-│   │   ├── searchController.js  # Endpoint tìm kiếm nâng cao
-│   │   ├── authController.js    # Endpoint xác thực
-│   │   ├── productController.js # Quản lý sản phẩm
-│   │   └── ...              # Controller khác
-│   ├── 📂 models/           # Database models
-│   │   └── 📂 search/       # Model tìm kiếm chuyên biệt
-│   ├── 📂 services/         # Tầng logic nghiệp vụ
-│   │   ├── 📂 search/       # Dịch vụ và helper tìm kiếm
-│   │   ├── 📂 order/        # Helper xử lý đơn hàng
-│   │   └── ...              # Dịch vụ khác
-│   ├── 📂 validation/       # Schema validation đầu vào
-│   ├── 📂 middleware/       # Hàm middleware tùy chỉnh
-│   └── 📂 utils/            # Hàm tiện ích
-│       ├── SearchQueryBuilder.js # Tiện ích tìm kiếm nâng cao
-│       └── ...              # Tiện ích khác
-├── 📂 config/               # File cấu hình
-├── 📂 test/                # File test
-├── 📄 db.txt               # Schema database
-├── 📄 api-docs.md          # Tài liệu API
-└── 📄 server.js            # Entry point ứng dụng
+├── 📄 server.js                    # Entry point chính
+├── 📄 package.json                 # Dependencies và scripts
+├── 📄 README.md                    # Tài liệu project
+├── 📄 api-docs.md                  # Tài liệu API chi tiết
+├── 📄 db.txt                       # Database schema
+│
+├── 📂 config/                      # Cấu hình hệ thống
+│   ├── config.js                   # Cấu hình chung
+│   └── database.js                 # Cấu hình database
+│
+├── 📂 src/                         # Source code chính
+│   ├── 📄 app.js                   # Application setup
+│   │
+│   ├── 📂 core/                    # Hệ thống cốt lõi (Custom Framework)
+│   │   ├── server.js               # HTTP server tùy chỉnh
+│   │   ├── router.js               # Routing system
+│   │   ├── request.js              # Request handling
+│   │   ├── response.js             # Response formatting
+│   │   └── middleware.js           # Middleware pipeline
+│   │
+│   ├── 📂 controllers/             # API Controllers
+│   │   ├── authController.js       # Xác thực
+│   │   ├── userController.js       # Quản lý user
+│   │   ├── productController.js    # Quản lý sản phẩm
+│   │   ├── searchController.js     # Tìm kiếm nâng cao
+│   │   ├── cartController.js       # Giỏ hàng
+│   │   ├── orderController.js      # Đơn hàng
+│   │   ├── paymentController.js    # Thanh toán
+│   │   ├── categoryController.js   # Danh mục
+│   │   ├── reviewController.js     # Đánh giá
+│   │   ├── statsController.js      # Thống kê
+│   │   └── uploadController.js     # Upload file
+│   │
+│   ├── 📂 models/                  # Database Models
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   ├── Order.js
+│   │   ├── OrderItem.js
+│   │   ├── Payment.js
+│   │   ├── Category.js
+│   │   ├── Review.js
+│   │   ├── ShoppingCart.js
+│   │   ├── BlacklistedToken.js
+│   │   ├── ResetToken.js
+│   │   └── 📂 search/              # Search Models
+│   │       ├── CategorySearchModel.js
+│   │       ├── OrderSearchModel.js
+│   │       ├── ProductSearchModel.js
+│   │       ├── ReviewSearchModel.js
+│   │       └── UserSearchModel.js
+│   │
+│   ├── 📂 services/                # Business Logic Layer
+│   │   ├── authService.js
+│   │   ├── userService.js
+│   │   ├── productService.js
+│   │   ├── cartService.js
+│   │   ├── orderService.js
+│   │   ├── paymentService.js
+│   │   ├── categoryService.js
+│   │   ├── reviewService.js
+│   │   ├── 📂 search/              # Search Services
+│   │   │   ├── GlobalSearchService.js
+│   │   │   ├── ProductSearchService.js
+│   │   │   ├── CategorySearchService.js
+│   │   │   ├── OrderSearchService.js
+│   │   │   ├── ReviewSearchService.js
+│   │   │   ├── UserSearchService.js
+│   │   │   └── SearchHelperService.js
+│   │   └── 📂 order/               # Order Helpers
+│   │       └── orderHelper.js
+│   │
+│   ├── 📂 middleware/              # Custom Middleware
+│   │   ├── auth.js                 # Authentication middleware
+│   │   ├── role.js                 # Role-based access
+│   │   ├── upload.js               # File upload
+│   │   └── validation.js           # Input validation
+│   │
+│   ├── 📂 validation/              # Validation Schemas
+│   │   ├── authValidation.js
+│   │   ├── userValidation.js
+│   │   ├── productValidation.js
+│   │   ├── cartValidation.js
+│   │   ├── orderValidation.js
+│   │   ├── paymentValidation.js
+│   │   ├── categoryValidation.js
+│   │   ├── reviewValidation.js
+│   │   └── searchValidation.js
+│   │
+│   ├── 📂 utils/                   # Utility Functions
+│   │   ├── bcrypt.js               # Password hashing
+│   │   ├── jwt.js                  # JWT handling
+│   │   ├── email.js                # Email service
+│   │   ├── response.js             # Response helpers
+│   │   ├── validator.js            # Validation helpers
+│   │   ├── constants.js            # App constants
+│   │   └── SearchQueryBuilder.js   # Advanced search utilities
+│   
+│   
+│
+└── 📂 test/                        # Test Files
+    ├── supabase_test_connection.js
+    └── test-user-model.js
+
 ```
 
 ### 🤝 Đóng Góp
@@ -488,15 +635,9 @@ npm run dev
    POST /api/payments
    ```
 
-4. **Admin Operations** / **Thao Tác Admin**
-   ```
-   GET /api/admin/users
-   GET /api/admin/orders
-   GET /api/payments/stats
-   ```
+
 
 ### Support / Hỗ Trợ
-- 📧 Email: [Your Email]
 - 📖 Documentation: [api-docs.md](api-docs.md)
 - 🌐 Live API: https://api.unimerch.space
 
