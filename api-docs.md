@@ -1443,6 +1443,305 @@ Content-Type: application/json
 }
 ```
 
+
+
+## 📝 Review APIs
+
+### 1. GET /api/reviews - Lấy danh sách tất cả reviews
+```
+Method: GET
+URL: {{base_url}}/api/reviews
+Headers: None (public endpoint)
+
+Query Parameters (optional):
+- page: 1
+- limit: 20
+- product_id: 1
+- user_id: 1
+- rating: 5
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy danh sách reviews thành công",
+  "data": {
+    "reviews": [...],
+    "pagination": {...}
+  }
+}
+```
+
+### 2. GET /api/reviews/:id - Lấy review theo ID
+```
+Method: GET
+URL: {{base_url}}/api/reviews/1
+Headers: None
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy thông tin review thành công",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "user_id": 1,
+    "rating": 5,
+    "comment": "Sản phẩm rất tốt!",
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "username": "user123",
+    "user_full_name": "Nguyễn Văn A",
+    "product_name": "Áo thun nam"
+  }
+}
+```
+
+### 3. GET /api/reviews/product/:product_id - Lấy reviews theo sản phẩm
+```
+Method: GET
+URL: {{base_url}}/api/reviews/product/1
+Headers: None
+
+Query Parameters (optional):
+- page: 1
+- limit: 20
+- rating: 5
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy danh sách reviews của sản phẩm thành công",
+  "data": {
+    "reviews": [...],
+    "pagination": {...}
+  }
+}
+```
+
+### 4. GET /api/reviews/product/:product_id/stats - Thống kê rating sản phẩm
+```
+Method: GET
+URL: {{base_url}}/api/reviews/product/1/stats
+Headers: None
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy thống kê rating sản phẩm thành công",
+  "data": {
+    "total_reviews": 25,
+    "average_rating": 4.2,
+    "rating_distribution": {
+      "5": 10,
+      "4": 8,
+      "3": 5,
+      "2": 1,
+      "1": 1
+    }
+  }
+}
+```
+
+### 5. GET /api/reviews/my-reviews - Lấy reviews của user hiện tại
+```
+Method: GET
+URL: {{base_url}}/api/reviews/my-reviews
+Headers: Authorization: Bearer {{token}}
+
+Query Parameters (optional):
+- page: 1
+- limit: 20
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy danh sách reviews của bạn thành công",
+  "data": {
+    "reviews": [...],
+    "pagination": {...}
+  }
+}
+```
+
+### 6. GET /api/reviews/check/:product_id - Kiểm tra đã review chưa
+```
+Method: GET
+URL: {{base_url}}/api/reviews/check/1
+Headers: Authorization: Bearer {{token}}
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Kiểm tra trạng thái review thành công",
+  "data": {
+    "has_reviewed": false
+  }
+}
+```
+
+### 7. GET /api/reviews/top-products - Sản phẩm rating cao nhất
+```
+Method: GET
+URL: {{base_url}}/api/reviews/top-products
+Headers: None
+
+Query Parameters (optional):
+- limit: 10
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy danh sách sản phẩm có rating cao nhất thành công",
+  "data": [
+    {
+      "id": 1,
+      "name": "Áo thun nam",
+      "image_url": "...",
+      "price": 199000,
+      "discount_price": 150000,
+      "average_rating": 4.8,
+      "total_reviews": 50
+    }
+  ]
+}
+```
+
+### 8. POST /api/reviews - Tạo review mới
+```
+Method: POST
+URL: {{base_url}}/api/reviews
+Headers: 
+- Authorization: Bearer {{token}}
+- Content-Type: application/json
+
+Body (JSON):
+{
+  "product_id": 1,
+  "rating": 5,
+  "comment": "Sản phẩm tuyệt vời, chất lượng rất tốt!"
+}
+
+Expected Response (201):
+{
+  "success": true,
+  "message": "Tạo review thành công",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "user_id": 1,
+    "rating": 5,
+    "comment": "Sản phẩm tuyệt vời, chất lượng rất tốt!"
+  }
+}
+
+Test Cases:
+✓ Valid data → 201 Created
+✗ Missing product_id → 400 Bad Request
+✗ Invalid rating (not 1-5) → 400 Bad Request
+✗ Product not exists → 404 Not Found
+✗ Already reviewed → 400 Bad Request
+✗ No auth token → 401 Unauthorized
+```
+
+### 9. PUT /api/reviews/:id - Cập nhật review
+```
+Method: PUT
+URL: {{base_url}}/api/reviews/1
+Headers: 
+- Authorization: Bearer {{token}}
+- Content-Type: application/json
+
+Body (JSON):
+{
+  "rating": 4,
+  "comment": "Cập nhật: Sản phẩm khá tốt"
+}
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Cập nhật review thành công",
+  "data": {
+    "id": 1,
+    "product_id": 1,
+    "user_id": 1,
+    "rating": 4,
+    "comment": "Cập nhật: Sản phẩm khá tốt"
+  }
+}
+
+Test Cases:
+✓ Owner updates own review → 200 OK
+✓ Admin updates any review → 200 OK
+✗ User updates others' review → 403 Forbidden
+✗ Review not exists → 404 Not Found
+✗ Invalid rating → 400 Bad Request
+✗ No auth token → 401 Unauthorized
+```
+
+### 10. DELETE /api/reviews/:id - Xóa review
+```
+Method: DELETE
+URL: {{base_url}}/api/reviews/1
+Headers: Authorization: Bearer {{token}}
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Xóa review thành công",
+  "data": null
+}
+
+Test Cases:
+✓ Owner deletes own review → 200 OK
+✓ Admin deletes any review → 200 OK  
+✗ User deletes others' review → 403 Forbidden
+✗ Review not exists → 404 Not Found
+✗ No auth token → 401 Unauthorized
+```
+
+### 11. GET /api/reviews/user/:user_id - Reviews của user (Admin only)
+```
+Method: GET
+URL: {{base_url}}/api/reviews/user/1
+Headers: Authorization: Bearer {{admin_token}}
+
+Query Parameters (optional):
+- page: 1
+- limit: 20
+
+Expected Response (200):
+{
+  "success": true,
+  "message": "Lấy danh sách reviews của người dùng thành công",
+  "data": {
+    "reviews": [...],
+    "pagination": {...}
+  }
+}
+
+
+```
+
+## 📝 Search APIs
+
+Link to postman collection: https://bom.so/LGfOns
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 > **Note:** When refunding, order status automatically changes to `cancelled`
 
 ---
