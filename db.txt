@@ -175,6 +175,15 @@ CREATE TRIGGER update_blacklisted_tokens_updated_at
 
 
 
+-- Cập nhật bảng products để thêm trường color và size cho sản phẩm quần áo
+ALTER TABLE products ADD COLUMN IF NOT EXISTS color VARCHAR(50);
+ALTER TABLE products ADD COLUMN IF NOT EXISTS size VARCHAR(20);
+
+-- Index để tăng performance khi filter theo color/size
+CREATE INDEX IF NOT EXISTS idx_products_color ON products(color);
+CREATE INDEX IF NOT EXISTS idx_products_size ON products(size);
+
+
 2 bảng này không có foreign key với bảng khác nhưng KHÔNG có vấn đề gì và thực sự là thiết kế đúng cho các lý do sau:
 1. Bảng reset_tokens - Tại sao không FK với users:
 ✅ Lý do thiết kế:

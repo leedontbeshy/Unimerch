@@ -2,22 +2,28 @@ const NodeServer = require('./core/server');
 const { register, login, logout, forgotPassword, resetPassword } = require('./controllers/authController');
 const { testConnection } = require('../config/database');
 const { authenticateToken } = require('./middleware/auth');
-const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./utils/validator');
+const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('./validation/authValidation');
 const { requireAdmin } = require('./middleware/role');
-const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById } = require('./controllers/userController');
+const { getProfile, updateProfile, changePassword, getAllUsers, getUserById, updateUserById, deleteUserById, getUserStats } = require('./controllers/userController');
+const { validateUpdateProfile, validateChangePassword, validateUserId, validateUsersQuery, validateUpdateUserByAdmin } = require('./validation/userValidation');
 const { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory } = require('./controllers/categoryController');
+const { validateCreateCategory, validateUpdateCategory, validateCategoryId } = require('./validation/categoryValidation');
 const { requireSellerOrAdmin } = require('./middleware/role');
-const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts } = require('./controllers/productController');
+const { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getProductsBySeller, getFeaturedProducts, getProductsByColorSize } = require('./controllers/productController');
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats } = require('./controllers/orderController');
+const { validateCreateOrder, validateUpdateOrderStatus, validateOrderId, validateOrdersQuery } = require('./validation/orderValidation');
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
 const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
+const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
+const { searchProducts, searchCategories, searchUsers, searchOrders, searchReviews, globalSearch, getSuggestions, getPopularKeywords, getSearchFilters, getSearchStats } = require('./controllers/searchController');
+const { validateProductSearch, validateCategorySearch, validateUserSearch, validateOrderSearch, validateReviewSearch, validateGlobalSearch } = require('./validation/searchValidation');
 
 require('dotenv').config();
 
 // Tạo server instance
 const server = new NodeServer();
 
-// Test database connection (GIỮ NGUYÊN - từ database config)
+// Test database connection 
 testConnection();
 
 // Basic middleware for logging
@@ -41,43 +47,44 @@ server.post('/api/auth/reset-password', validateResetPassword, resetPassword);
 
 // User Management routes
 server.get('/api/users/profile', authenticateToken, getProfile);
-server.put('/api/users/profile', authenticateToken, updateProfile);
-server.put('/api/users/change-password', authenticateToken, changePassword);
-server.get('/api/users', authenticateToken, requireAdmin, getAllUsers);
-server.get('/api/users/:id', authenticateToken, requireAdmin, getUserById);
-server.put('/api/users/:id', authenticateToken, requireAdmin, updateUserById);
-server.delete('/api/users/:id', authenticateToken, requireAdmin, deleteUserById);
+server.put('/api/users/profile', authenticateToken, validateUpdateProfile, updateProfile);
+server.put('/api/users/change-password', authenticateToken, validateChangePassword, changePassword);
+server.get('/api/users/stats', authenticateToken, requireAdmin, getUserStats);
+server.get('/api/users', authenticateToken, requireAdmin, validateUsersQuery, getAllUsers);
+server.get('/api/users/:id', authenticateToken, requireAdmin, validateUserId, getUserById);
+server.put('/api/users/:id', authenticateToken, requireAdmin, validateUpdateUserByAdmin, updateUserById);
+server.delete('/api/users/:id', authenticateToken, requireAdmin, validateUserId, deleteUserById);
 
 // Category routes
 server.get('/api/categories', getCategories);
-server.get('/api/categories/:id', getCategoryById);
-server.post('/api/categories', authenticateToken, requireSellerOrAdmin, createCategory);
-server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, updateCategory);
-server.delete('/api/categories/:id', authenticateToken, requireAdmin, deleteCategory);
+server.get('/api/categories/:id', validateCategoryId, getCategoryById);
+server.post('/api/categories', authenticateToken, requireSellerOrAdmin, validateCreateCategory, createCategory);
+server.put('/api/categories/:id', authenticateToken, requireSellerOrAdmin, validateUpdateCategory, updateCategory);
+server.delete('/api/categories/:id', authenticateToken, requireAdmin, validateCategoryId, deleteCategory);
 
 // Product routes
 server.get('/api/products', getProducts);
+server.get('/api/products/search', getProductsByColorSize); // Thêm route mới
 server.get('/api/products/featured', getFeaturedProducts);
-server.get('/api/products/seller/:seller_id', getProductsBySeller);
 server.get('/api/products/:id', getProductById);
 server.post('/api/products', authenticateToken, requireSellerOrAdmin, createProduct);
 server.put('/api/products/:id', authenticateToken, requireSellerOrAdmin, updateProduct);
 server.delete('/api/products/:id', authenticateToken, requireSellerOrAdmin, deleteProduct);
 
 // Order routes
-server.post('/api/orders', authenticateToken, createOrder);
-server.get('/api/orders', authenticateToken, getUserOrders);
+server.post('/api/orders', authenticateToken, validateCreateOrder, createOrder);
+server.get('/api/orders', authenticateToken, validateOrdersQuery, getUserOrders);
 server.get('/api/orders/stats', authenticateToken, getOrderStats);
-server.get('/api/orders/:id', authenticateToken, getOrderById);
-server.put('/api/orders/:id/status', authenticateToken, updateOrderStatus);
-server.delete('/api/orders/:id', authenticateToken, cancelOrder);
-server.get('/api/orders/:id/items', authenticateToken, getOrderItems);
+server.get('/api/orders/:id', authenticateToken, validateOrderId, getOrderById);
+server.put('/api/orders/:id/status', authenticateToken, validateUpdateOrderStatus, updateOrderStatus);
+server.delete('/api/orders/:id', authenticateToken, validateOrderId, cancelOrder);
+server.get('/api/orders/:id/items', authenticateToken, validateOrderId, getOrderItems);
 
 // Admin order routes
-server.get('/api/admin/orders', authenticateToken, requireAdmin, getAllOrders);
+server.get('/api/admin/orders', authenticateToken, requireAdmin, validateOrdersQuery, getAllOrders);
 
 // Seller order routes
-server.get('/api/seller/orders', authenticateToken, requireSellerOrAdmin, getSellerOrders);
+server.get('/api/seller/orders', authenticateToken, requireSellerOrAdmin, validateOrdersQuery, getSellerOrders);
 
 // Shopping Cart routes
 server.post('/api/cart/add', authenticateToken, addToCart);
@@ -101,6 +108,35 @@ server.get('/api/payments/:orderId', authenticateToken, getPaymentsByOrderId); /
 
 // Admin payment routes
 server.get('/api/admin/payments', authenticateToken, requireAdmin, getAllPayments);
+
+// Review routes
+server.get('/api/reviews', getReviews);
+server.get('/api/reviews/my-reviews', authenticateToken, getMyReviews);
+server.get('/api/reviews/top-products', getTopRatedProducts);
+server.get('/api/reviews/:id', getReviewById);
+server.post('/api/reviews', authenticateToken, createReview);
+server.put('/api/reviews/:id', authenticateToken, updateReview);
+server.delete('/api/reviews/:id', authenticateToken, deleteReview);
+
+// Product review routes
+server.get('/api/reviews/product/:product_id', getReviewsByProduct);
+server.get('/api/reviews/product/:product_id/stats', getProductRatingStats);
+server.get('/api/reviews/check/:product_id', authenticateToken, checkUserReviewed);
+
+// Admin review routes
+server.get('/api/reviews/user/:user_id', authenticateToken, requireAdmin, getReviewsByUser);
+
+// Search routes
+server.get('/api/search/products', validateProductSearch, searchProducts);
+server.get('/api/search/categories', validateCategorySearch, searchCategories);
+server.get('/api/search/users', authenticateToken, requireAdmin, validateUserSearch, searchUsers);
+server.get('/api/search/orders', authenticateToken, validateOrderSearch, searchOrders);
+server.get('/api/search/reviews', validateReviewSearch, searchReviews);
+server.get('/api/search/global', validateGlobalSearch, globalSearch);
+server.get('/api/search/suggestions', getSuggestions);
+server.get('/api/search/popular', getPopularKeywords);
+server.get('/api/search/filters', getSearchFilters);
+server.get('/api/search/stats', authenticateToken, requireAdmin, getSearchStats);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
