@@ -17,6 +17,8 @@ const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus
 const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
 const { searchProducts, searchCategories, searchUsers, searchOrders, searchReviews, globalSearch, getSuggestions, getPopularKeywords, getSearchFilters, getSearchStats } = require('./controllers/searchController');
 const { validateProductSearch, validateCategorySearch, validateUserSearch, validateOrderSearch, validateReviewSearch, validateGlobalSearch } = require('./validation/searchValidation');
+const { getDashboardStats, getRecentActivity, getRevenueStats, compareRevenue, getPaymentMethodStats, getProductStats, getSellerStats, getOrderStatusStats, getUserGrowthStats, getCompleteAdminStats, getStatsSummary } = require('./controllers/statsController');
+const { validateRevenueStatsQuery, validateRevenueComparisonQuery, validateUserGrowthQuery, validateLimitQuery, validateRecentActivityQuery, validateCompleteStatsQuery } = require('./validation/statsValidation');
 
 require('dotenv').config();
 
@@ -137,6 +139,19 @@ server.get('/api/search/suggestions', getSuggestions);
 server.get('/api/search/popular', getPopularKeywords);
 server.get('/api/search/filters', getSearchFilters);
 server.get('/api/search/stats', authenticateToken, requireAdmin, getSearchStats);
+
+// Admin Stats routes
+server.get('/api/admin/stats/dashboard', authenticateToken, requireAdmin, getDashboardStats);
+server.get('/api/admin/stats/recent-activity', authenticateToken, requireAdmin, validateRecentActivityQuery, getRecentActivity);
+server.get('/api/admin/stats/revenue', authenticateToken, requireAdmin, validateRevenueStatsQuery, getRevenueStats);
+server.get('/api/admin/stats/revenue/compare', authenticateToken, requireAdmin, validateRevenueComparisonQuery, compareRevenue);
+server.get('/api/admin/stats/payment-methods', authenticateToken, requireAdmin, getPaymentMethodStats);
+server.get('/api/admin/stats/products', authenticateToken, requireAdmin, validateLimitQuery, getProductStats);
+server.get('/api/admin/stats/sellers', authenticateToken, requireAdmin, validateLimitQuery, getSellerStats);
+server.get('/api/admin/stats/orders', authenticateToken, requireAdmin, getOrderStatusStats);
+server.get('/api/admin/stats/users/growth', authenticateToken, requireAdmin, validateUserGrowthQuery, getUserGrowthStats);
+server.get('/api/admin/stats/complete', authenticateToken, requireAdmin, validateCompleteStatsQuery, getCompleteAdminStats);
+server.get('/api/admin/stats/summary', authenticateToken, requireAdmin, getStatsSummary);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {
