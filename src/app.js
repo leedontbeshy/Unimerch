@@ -40,7 +40,7 @@ server.get('/', (req, res) => {
     ResponseHelper.success(res, null, '🚀 UniMerch API is running');
 });
 
-// Auth routes với validation middlewares (VANILLA NODE.JS)
+// Auth routes với validation middlewares 
 server.post('/api/auth/register', validateRegister, register);
 server.post('/api/auth/login', validateLogin, login);
 server.post('/api/auth/logout', authenticateToken, logout);

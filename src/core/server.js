@@ -15,7 +15,7 @@ class NodeServer {
         this.middlewareEngine.use(middleware);
     }
     
-    // GET method với hỗ trợ multiple middlewares
+    
     get(...args) {
         const path = args[0];
         const handlers = args.slice(1); // Tất cả handlers và middlewares
