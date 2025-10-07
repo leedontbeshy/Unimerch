@@ -29,16 +29,14 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
-        // Controller chỉ gọi service
+
         const result = await AuthService.loginUser(email, password);
         
         return successResponse(res, result, 'Đăng nhập thành công');
         
     } catch (error) {
         console.error('Login error:', error);
-        
-        // Xử lý lỗi từ service
+
         if (error.message === 'Email hoặc mật khẩu không đúng') {
             return errorResponse(res, error.message, 401);
         }
@@ -50,8 +48,7 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
     try {
         const token = req.token;
-        
-        // Controller chỉ gọi service
+
         await AuthService.logoutUser(token);
         
         return successResponse(res, null, 'Đăng xuất thành công');
@@ -65,15 +62,13 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
         
-        // Controller chỉ gọi service
         const result = await AuthService.forgotPassword(email);
         
         return successResponse(res, null, result.message);
         
     } catch (error) {
         console.error('Forgot password error:', error);
-        
-        // Xử lý lỗi từ service
+
         if (error.message === 'Không thể gửi email reset password') {
             return errorResponse(res, error.message, 500);
         }
@@ -85,16 +80,14 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { resetToken, newPassword } = req.body;
-        
-        // Controller chỉ gọi service
+
         const result = await AuthService.resetPassword(resetToken, newPassword);
         
         return successResponse(res, null, result.message);
         
     } catch (error) {
         console.error('Reset password error:', error);
-        
-        // Xử lý lỗi từ service
+
         if (error.message === 'Reset token không hợp lệ hoặc đã hết hạn') {
             return errorResponse(res, error.message, 400);
         }

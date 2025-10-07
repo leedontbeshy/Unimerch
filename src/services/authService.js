@@ -8,9 +8,6 @@ const crypto = require('crypto');
 
 class AuthService {
     
-    /**
-     * Business Logic: Đăng ký user mới
-     */
     static async registerUser(userData) {
         const { username, email, password, fullName, studentId, phone, address } = userData;
         
@@ -64,9 +61,6 @@ class AuthService {
         };
     }
 
-    /**
-     * Business Logic: Đăng nhập user
-     */
     static async loginUser(email, password) {
         // 1. Tìm user theo email
         const user = await User.findByEmail(email);
@@ -104,18 +98,12 @@ class AuthService {
         };
     }
 
-    /**
-     * Business Logic: Đăng xuất user
-     */
     static async logoutUser(token) {
         // Thêm token vào blacklist database
         await addToBlacklist(token);
         return true;
     }
 
-    /**
-     * Business Logic: Quên mật khẩu - gửi email reset
-     */
     static async forgotPassword(email) {
         // 1. Tìm user theo email
         const user = await User.findByEmail(email);
@@ -148,9 +136,6 @@ class AuthService {
         }
     }
 
-    /**
-     * Business Logic: Reset mật khẩu
-     */
     static async resetPassword(resetToken, newPassword) {
         // 1. Kiểm tra reset token trong database
         const tokenData = await ResetToken.findByToken(resetToken);
