@@ -8,9 +8,6 @@ const OrderHelper = require('./order/orderHelper');
 
 class OrderService {
     
-    /**
-     * Business Logic: Tạo order từ giỏ hàng
-     */
     static async createOrderFromCart(userId, orderData) {
         const { shipping_address, payment_method } = orderData;
         const client = await pool.connect();
@@ -18,13 +15,11 @@ class OrderService {
         try {
             await client.query('BEGIN');
             
-            // 1. Validate cart items
             const cartItems = await ShoppingCart.validateCartItems(userId);
             if (cartItems.length === 0) {
                 throw new Error('Giỏ hàng trống');
             }
             
-            // 2. Check availability
             const invalidItems = cartItems.filter(item => item.validation_status !== 'valid');
             if (invalidItems.length > 0) {
                 const invalidNames = invalidItems.map(item => item.product_name).join(', ');
@@ -72,9 +67,6 @@ class OrderService {
         }
     }
     
-    /**
-     * Business Logic: Tạo order trực tiếp từ items
-     */
     static async createOrderDirect(userId, orderData) {
         const { items, shipping_address, payment_method } = orderData;
         const client = await pool.connect();
@@ -85,7 +77,6 @@ class OrderService {
             let totalAmount = 0;
             const orderItems = [];
             
-            // 1. Validate và tính tổng tiền
             for (const item of items) {
                 const product = await Product.findById(item.product_id);
                 if (!product) {
@@ -110,23 +101,20 @@ class OrderService {
                 totalAmount += price * item.quantity;
             }
             
-            // 2. Create order
             const order = await Order.create({
                 user_id: userId,
                 total_amount: totalAmount,
                 shipping_address: shipping_address.trim(),
                 payment_method: payment_method.trim()
             });
-            
-            // 3. Create order items
+
             const createdItems = await OrderItem.createMany(
                 orderItems.map(item => ({
                     ...item,
                     order_id: order.id
                 }))
             );
-            
-            // 4. Update product quantities
+
             await OrderHelper.updateProductQuantities(orderItems, 'decrease');
             
             await client.query('COMMIT');
@@ -143,10 +131,7 @@ class OrderService {
             client.release();
         }
     }
-    
-    /**
-     * Business Logic: Lấy danh sách orders với pagination
-     */
+
     static async getUserOrders(userId, queryParams) {
         const { page = 1, limit = 10, status } = queryParams;
         const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -178,9 +163,6 @@ class OrderService {
         };
     }
     
-    /**
-     * Business Logic: Lấy chi tiết order với permission check
-     */
     static async getOrderDetails(orderId, userId, userRole) {
         const order = await Order.findById(orderId);
         if (!order) {
@@ -196,10 +178,7 @@ class OrderService {
 
         return order;
     }
-    
-    /**
-     * Business Logic: Cập nhật trạng thái order
-     */
+
     static async updateOrderStatus(orderId, newStatus, userId, userRole) {
         const order = await Order.findById(orderId);
         if (!order) {
@@ -218,9 +197,7 @@ class OrderService {
         return updatedOrder;
     }
     
-    /**
-     * Business Logic: Hủy order
-     */
+
     static async cancelOrder(orderId, userId, userRole) {
         const order = await Order.findById(orderId);
         if (!order) {
@@ -261,9 +238,6 @@ class OrderService {
         }
     }
     
-    /**
-     * Business Logic: Lấy orders cho admin
-     */
     static async getAllOrdersForAdmin(queryParams) {
         const { page = 1, limit = 20, status, user_id } = queryParams;
         const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -293,10 +267,7 @@ class OrderService {
             }
         };
     }
-    
-    /**
-     * Business Logic: Lấy orders cho seller
-     */
+
     static async getSellerOrders(sellerId, queryParams) {
         const { page = 1, limit = 20, status } = queryParams;
         const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -330,9 +301,6 @@ class OrderService {
         };
     }
     
-    /**
-     * Business Logic: Lấy thống kê orders
-     */
     static async getOrderStatistics(userId, userRole) {
         let stats;
         if (userRole === 'admin') {
