@@ -281,38 +281,38 @@ The Postman collection includes:
 
 ```
 WebDevFinal/
-├── 📄 server.js                    # Entry point chính
-├── 📄 package.json                 # Dependencies và scripts
-├── 📄 README.md                    # Tài liệu project
-├── 📄 api-docs.md                  # Tài liệu API chi tiết
+├── 📄 server.js                    # Main entry point
+├── 📄 package.json                 # Dependencies & scripts
+├── 📄 README.md                    # Project documentation
+├── 📄 api-docs.md                  # Detailed API documentation
 ├── 📄 db.txt                       # Database schema
 │
-├── 📂 config/                      # Cấu hình hệ thống
-│   ├── config.js                   # Cấu hình chung
-│   └── database.js                 # Cấu hình database
+├── 📂 config/                      # System configuration
+│   ├── config.js                   # General config
+│   └── database.js                 # Database config
 │
-├── 📂 src/                         # Source code chính
+├── 📂 src/                         # Main source code
 │   ├── 📄 app.js                   # Application setup
 │   │
-│   ├── 📂 core/                    # Hệ thống cốt lõi (Custom Framework)
-│   │   ├── server.js               # HTTP server tùy chỉnh
+│   ├── 📂 core/                    # Core system (Custom Framework)
+│   │   ├── server.js               # Custom HTTP server
 │   │   ├── router.js               # Routing system
 │   │   ├── request.js              # Request handling
 │   │   ├── response.js             # Response formatting
 │   │   └── middleware.js           # Middleware pipeline
 │   │
 │   ├── 📂 controllers/             # API Controllers
-│   │   ├── authController.js       # Xác thực
-│   │   ├── userController.js       # Quản lý user
-│   │   ├── productController.js    # Quản lý sản phẩm
-│   │   ├── searchController.js     # Tìm kiếm nâng cao
-│   │   ├── cartController.js       # Giỏ hàng
-│   │   ├── orderController.js      # Đơn hàng
-│   │   ├── paymentController.js    # Thanh toán
-│   │   ├── categoryController.js   # Danh mục
-│   │   ├── reviewController.js     # Đánh giá
-│   │   ├── statsController.js      # Thống kê
-│   │   └── uploadController.js     # Upload file
+│   │   ├── authController.js       # Authentication
+│   │   ├── userController.js       # User management
+│   │   ├── productController.js    # Product management
+│   │   ├── searchController.js     # Advanced search
+│   │   ├── cartController.js       # Shopping cart
+│   │   ├── orderController.js      # Orders
+│   │   ├── paymentController.js    # Payments
+│   │   ├── categoryController.js   # Categories
+│   │   ├── reviewController.js     # Reviews
+│   │   ├── statsController.js      # Statistics
+│   │   └── uploadController.js     # File upload
 │   │
 │   ├── 📂 models/                  # Database Models
 │   │   ├── User.js
@@ -369,16 +369,14 @@ WebDevFinal/
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
 │   │
-│   ├── 📂 utils/                   # Utility Functions
-│   │   ├── bcrypt.js               # Password hashing
-│   │   ├── jwt.js                  # JWT handling
-│   │   ├── email.js                # Email service
-│   │   ├── response.js             # Response helpers
-│   │   ├── validator.js            # Validation helpers
-│   │   ├── constants.js            # App constants
-│   │   └── SearchQueryBuilder.js   # Advanced search utilities
-│   
-│   
+│   └── 📂 utils/                   # Utility Functions
+│       ├── bcrypt.js               # Password hashing
+│       ├── jwt.js                  # JWT handling
+│       ├── email.js                # Email service
+│       ├── response.js             # Response helpers
+│       ├── validator.js            # Validation helpers
+│       ├── constants.js            # App constants
+│       └── SearchQueryBuilder.js   # Advanced search utilities
 │
 └── 📂 test/                        # Test Files
     ├── supabase_test_connection.js
