@@ -8,9 +8,11 @@
 
 ### 🌟 Overview
 
-**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js , this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
+**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js, this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
 
 🌐 **Live API:** https://api.unimerch.space
+
+📮 **Postman Collection:** [Import Collection](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
 ### ✨ Key Features
 
