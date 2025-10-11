@@ -392,12 +392,16 @@ WebDevFinal/
 5. Update documentation
 6. Submit pull request
 
+### 📝 License
+
+This project is licensed under the MIT License.
 
 ### 🔗 Links
 
 - **Live API:** https://api.unimerch.space
 - **Documentation:** [API Docs](api-docs.md)
-- **Frontend Repository:** [Contact for access]
+- **Postman Collection:** [Import Here](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+- **GitHub Repository:** https://github.com/leedontbeshy/Unimerch
 
 ---
 
@@ -405,9 +409,11 @@ WebDevFinal/
 
 ### 🌟 Tổng Quan
 
-**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần , API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
+**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần, API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
 
 🌐 **API Trực Tuyến:** https://api.unimerch.space
+
+📮 **Collection Postman:** [Import Collection](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
 ### ✨ Tính Năng Chính
 
@@ -451,7 +457,7 @@ WebDevFinal/
 - Hệ thống xử lý hoàn tiền
 
 #### 🔍 **Hệ Thống Tìm Kiếm Nâng Cao**
-- Tìm kiếm  sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
+- Tìm kiếm toàn cục sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
 - Tự động hoàn thành và gợi ý thông minh
 - Lọc và sắp xếp đa tiêu chí
 - Lịch sử tìm kiếm và phân tích
@@ -464,10 +470,16 @@ WebDevFinal/
 - Phân tích phương thức thanh toán
 - Thông tin chi tiết về hành vi người dùng
 
+#### ⭐ **Hệ Thống Đánh Giá**
+- Đánh giá và xếp hạng sản phẩm
+- Xác thực đánh giá cho đơn hàng đã mua
+- Phân tích và thống kê xếp hạng
+- Showcase sản phẩm đánh giá cao nhất
+
 ### 🛠️ Công Nghệ Sử Dụng
 
 #### **Công Nghệ Cốt Lõi**
-- **Backend:** Node.js thuần 
+- **Backend:** Node.js thuần
 - **Cơ Sở Dữ Liệu:** PostgreSQL với hosting Supabase
 - **Xác Thực:** JSON Web Tokens (JWT)
 - **Bảo Mật Mật Khẩu:** Mã hóa bcryptjs
@@ -545,26 +557,126 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 - **Giỏ hàng:** `/api/cart/*` - Quản lý giỏ hàng
 - **Đơn hàng:** `/api/orders/*` - Tạo đơn, theo dõi, quản lý
 - **Thanh toán:** `/api/payments/*` - Xử lý thanh toán, hoàn tiền
+- **Đánh giá:** `/api/reviews/*` - Đánh giá và xếp hạng sản phẩm
 - **Admin:** `/api/admin/*` - Thao tác chỉ dành cho admin
 - **Seller:** `/api/seller/*` - Thao tác đặc thù cho seller
 
-### 🧪 Testing
+### 🧪 Testing với Postman
 
-#### **Testing với Postman**
-1. Import API collection từ `api-docs.md` (đang cập nhật)
-2. Thiết lập biến môi trường:
-   ```
-   baseURL: http://localhost:3000
-   token: (JWT token sau khi đăng nhập)
-   adminToken: (Admin JWT token)
-   ```
-3. Chạy authentication flow trước
-4. Test tất cả endpoint một cách có hệ thống
+#### **Import Collection**
+1. **Import Nhanh:** Click nút dưới đây để import trực tiếp vào Postman
+   
+   [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
-#### **Trình Tự Test:**
+2. **Import Thủ Công:**
+   - Mở Postman
+   - Click nút "Import"
+   - Dán link collection hoặc sử dụng file JSON
+   - Link Collection: `https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684`
+
+#### **Thiết Lập Biến Môi Trường**
+Tạo môi trường mới trong Postman với các biến sau:
 ```
-Authentication → User Profile → Products → Search → Cart → Orders → Payments -> Reviews ->
+unimerch: https://api.unimerch.space
+token_test_16_09: (Sẽ được set sau khi login)
+user_token_16_09: (Sẽ được set sau khi user login)
+bao_token: (Sẽ được set sau khi user cụ thể login)
 ```
+
+#### **Trình Tự Test**
+Theo dõi thứ tự này để test có hệ thống:
+
+1. **Luồng Xác Thực**
+   ```
+   POST /api/auth/register → Tạo tài khoản
+   POST /api/auth/login → Lấy JWT token (lưu vào environment)
+   GET /api/users/profile → Xác thực authentication
+   ```
+
+2. **Quản Lý Sản Phẩm**
+   ```
+   GET /api/products → Duyệt sản phẩm
+   GET /api/products/1 → Xem chi tiết sản phẩm
+   GET /api/products/featured → Lấy sản phẩm nổi bật
+   POST /api/products → Tạo sản phẩm (admin/seller)
+   ```
+
+3. **Giỏ Hàng**
+   ```
+   POST /api/cart/add → Thêm items vào giỏ
+   GET /api/cart → Xem giỏ hàng
+   PUT /api/cart/update/:id → Cập nhật số lượng
+   GET /api/cart/validate → Xác thực giỏ trước checkout
+   ```
+
+4. **Xử Lý Đơn Hàng**
+   ```
+   POST /api/orders → Tạo đơn từ giỏ hàng
+   GET /api/orders → Xem đơn hàng của user
+   GET /api/orders/:id → Xem chi tiết đơn hàng
+   PUT /api/orders/:id/status → Cập nhật trạng thái đơn
+   ```
+
+5. **Xử Lý Thanh Toán**
+   ```
+   POST /api/payments → Tạo thanh toán
+   GET /api/payments/:id → Xem chi tiết thanh toán
+   PUT /api/payments/:id/status → Cập nhật trạng thái thanh toán
+   GET /api/payments/stats → Xem thống kê thanh toán (admin)
+   ```
+
+6. **Đánh Giá & Xếp Hạng**
+   ```
+   POST /api/reviews → Tạo đánh giá
+   GET /api/reviews/product/:id → Lấy đánh giá sản phẩm
+   GET /api/reviews/product/:id/stats → Lấy thống kê xếp hạng
+   PUT /api/reviews/:id → Cập nhật đánh giá
+   ```
+
+#### **Bộ Sưu Tập Có Sẵn**
+
+Bộ sưu tập Postman bao gồm:
+
+- **Auth APIs** (6 endpoints)
+  - Đăng ký, Đăng nhập, Đăng xuất
+  - Reset & Khôi phục mật khẩu
+  
+- **User Management APIs** (4 endpoints)
+  - Quản lý hồ sơ
+  - Đổi mật khẩu
+  - Thao tác admin user
+
+- **Product APIs** (8 endpoints)
+  - Thao tác CRUD
+  - Tìm kiếm và lọc
+  - Sản phẩm nổi bật
+
+- **Category APIs** (2 endpoints)
+  - Quản lý danh mục
+  - Cập nhật danh mục
+
+- **Cart APIs** (7 endpoints)
+  - Quản lý giỏ hàng
+  - Thao tác items
+  - Xác thực giỏ hàng
+
+- **Order APIs** (10 endpoints)
+  - Tạo đơn (giỏ hàng & trực tiếp)
+  - Theo dõi đơn hàng
+  - Quản lý trạng thái
+  - Views admin & seller
+
+- **Payment APIs** (8 endpoints)
+  - Xử lý thanh toán
+  - Theo dõi thanh toán
+  - Hoàn tiền
+  - Phân tích doanh thu
+
+- **Review APIs** (11 endpoints)
+  - Thao tác CRUD đánh giá
+  - Thống kê xếp hạng
+  - Sản phẩm top
+  - Đánh giá của user
 
 ### 📁 Cấu Trúc Project
 
