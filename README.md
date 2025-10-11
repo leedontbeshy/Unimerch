@@ -156,26 +156,126 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 - **Cart:** `/api/cart/*` - Shopping cart management
 - **Orders:** `/api/orders/*` - Order creation, tracking, management
 - **Payments:** `/api/payments/*` - Payment processing, refunds
+- **Reviews:** `/api/reviews/*` - Product reviews and ratings
 - **Admin:** `/api/admin/*` - Admin-only operations
 - **Seller:** `/api/seller/*` - Seller-specific operations
 
-### 🧪 Testing
+### 🧪 Testing with Postman
 
-#### **Postman Testing**
-1. Import API collection from `api-docs.md` (updating)
-2. Set environment variables:
-   ```
-   baseURL: http://localhost:3000
-   token: (JWT token after login)
-   adminToken: (Admin JWT token)
-   ```
-3. Run authentication flow first
-4. Test all endpoints systematically
+#### **Import Collection**
+1. **Quick Import:** Click the button below to import directly to Postman
+   
+   [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
-#### **Test Sequence:**
+2. **Manual Import:** 
+   - Open Postman
+   - Click "Import" button
+   - Paste the collection link or use the JSON file
+   - Collection Link: `https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684`
+
+#### **Setup Environment Variables**
+Create a new environment in Postman with these variables:
 ```
-Authentication → User Profile → Products → Search → Cart → Orders → Payments
+unimerch: https://api.unimerch.space
+token_test_16_09: (Will be set after login)
+user_token_16_09: (Will be set after user login)
+bao_token: (Will be set after specific user login)
 ```
+
+#### **Test Sequence**
+Follow this order for systematic testing:
+
+1. **Authentication Flow**
+   ```
+   POST /api/auth/register → Create account
+   POST /api/auth/login → Get JWT token (save to environment)
+   GET /api/users/profile → Verify authentication
+   ```
+
+2. **Product Management**
+   ```
+   GET /api/products → Browse products
+   GET /api/products/1 → View product details
+   GET /api/products/featured → Get featured products
+   POST /api/products → Create product (admin/seller)
+   ```
+
+3. **Shopping Cart**
+   ```
+   POST /api/cart/add → Add items to cart
+   GET /api/cart → View cart
+   PUT /api/cart/update/:id → Update quantity
+   GET /api/cart/validate → Validate cart before checkout
+   ```
+
+4. **Order Processing**
+   ```
+   POST /api/orders → Create order from cart
+   GET /api/orders → View user orders
+   GET /api/orders/:id → View order details
+   PUT /api/orders/:id/status → Update order status
+   ```
+
+5. **Payment Processing**
+   ```
+   POST /api/payments → Create payment
+   GET /api/payments/:id → View payment details
+   PUT /api/payments/:id/status → Update payment status
+   GET /api/payments/stats → View payment statistics (admin)
+   ```
+
+6. **Reviews & Ratings**
+   ```
+   POST /api/reviews → Create review
+   GET /api/reviews/product/:id → Get product reviews
+   GET /api/reviews/product/:id/stats → Get rating statistics
+   PUT /api/reviews/:id → Update review
+   ```
+
+#### **Available Collections**
+
+The Postman collection includes:
+
+- **Auth APIs** (6 endpoints)
+  - Register, Login, Logout
+  - Password Reset & Recovery
+  
+- **User Management APIs** (4 endpoints)
+  - Profile management
+  - Password change
+  - Admin user operations
+
+- **Product APIs** (8 endpoints)
+  - CRUD operations
+  - Search and filters
+  - Featured products
+
+- **Category APIs** (2 endpoints)
+  - Category management
+  - Category updates
+
+- **Cart APIs** (7 endpoints)
+  - Cart management
+  - Item operations
+  - Cart validation
+
+- **Order APIs** (10 endpoints)
+  - Order creation (cart & direct)
+  - Order tracking
+  - Status management
+  - Admin & seller views
+
+- **Payment APIs** (8 endpoints)
+  - Payment processing
+  - Payment tracking
+  - Refunds
+  - Revenue analytics
+
+- **Review APIs** (11 endpoints)
+  - Review CRUD operations
+  - Rating statistics
+  - Top products
+  - User reviews
 
 ### 📁 Project Structure
 
