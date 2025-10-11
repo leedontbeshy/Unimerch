@@ -770,21 +770,18 @@ WebDevFinal/
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
 │   │
-│   ├── 📂 utils/                   # Utility Functions
-│   │   ├── bcrypt.js               # Password hashing
-│   │   ├── jwt.js                  # JWT handling
-│   │   ├── email.js                # Email service
-│   │   ├── response.js             # Response helpers
-│   │   ├── validator.js            # Validation helpers
-│   │   ├── constants.js            # App constants
-│   │   └── SearchQueryBuilder.js   # Advanced search utilities
-│   
-│   
+│   └── 📂 utils/                   # Utility Functions
+│       ├── bcrypt.js               # Password hashing
+│       ├── jwt.js                  # JWT handling
+│       ├── email.js                # Email service
+│       ├── response.js             # Response helpers
+│       ├── validator.js            # Validation helpers
+│       ├── constants.js            # App constants
+│       └── SearchQueryBuilder.js   # Advanced search utilities
 │
 └── 📂 test/                        # Test Files
     ├── supabase_test_connection.js
     └── test-user-model.js
-
 ```
 
 ### 🤝 Đóng Góp
@@ -796,12 +793,16 @@ WebDevFinal/
 5. Cập nhật tài liệu
 6. Submit pull request
 
+### 📝 Giấy Phép
+
+Dự án này được cấp phép theo giấy phép MIT.
 
 ### 🔗 Liên Kết
 
 - **API Trực Tuyến:** https://api.unimerch.space
 - **Tài Liệu:** [API Docs](api-docs.md)
-- **Frontend Repository:** [Liên hệ để truy cập]
+- **Bộ Sưu Tập Postman:** [Import Tại Đây](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+- **GitHub Repository:** https://github.com/leedontbeshy/Unimerch
 
 ---
 
@@ -811,54 +812,161 @@ WebDevFinal/
 - Node.js 16.x or higher
 - PostgreSQL database (or Supabase account)
 - npm or yarn package manager
+- Postman (for API testing)
 
-### Installation / Cài Đặt
+### Installation Steps / Các Bước Cài Đặt
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/leedontbeshy/Unimerch.git
+   cd WebDevFinal
+   ```
+
+2. **Install Dependencies / Cài Đặt Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup / Thiết Lập Môi Trường**
+   
+   Create `.env` file / Tạo file `.env`:
+   ```env
+   DB_HOST=db.xxx.supabase.co
+   DB_USER=postgres
+   DB_PASSWORD=your_password
+   DB_NAME=postgres
+   DB_PORT=5432
+   
+   JWT_SECRET=your-secret-key
+   JWT_EXPIRES_IN=7d
+   
+   PORT=3000
+   NODE_ENV=development
+   
+   RESEND_API_KEY=your_resend_api_key
+   ```
+
+4. **Database Connection Test / Kiểm Tra Kết Nối Database**
+   ```bash
+   node -e "require('./config/database').testConnection()"
+   ```
+
+5. **Start Server / Khởi Động Server**
+   ```bash
+   npm start
+   # or for development / hoặc cho development
+   npm run dev
+   ```
+
+6. **Import Postman Collection / Import Bộ Sưu Tập Postman**
+   
+   Click to import: [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+
+### Quick Test Flow / Luồng Test Nhanh
+
 ```bash
-# Clone the repository
-git clone https://github.com/leedontbeshy/Unimerch.git
-cd WebDevFinal
+# 1. Register a new user / Đăng ký user mới
+POST /api/auth/register
 
-# Install dependencies
-npm install
+# 2. Login / Đăng nhập
+POST /api/auth/login
+# Save the token from response / Lưu token từ response
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your configuration
+# 3. View profile / Xem hồ sơ
+GET /api/users/profile
+# Use token in Authorization header / Dùng token trong Authorization header
 
-# Test database connection
-npm run test:db
+# 4. Browse products / Duyệt sản phẩm
+GET /api/products
 
-# Start development server
-npm run dev
+# 5. Add to cart / Thêm vào giỏ
+POST /api/cart/add
+
+# 6. Create order / Tạo đơn hàng
+POST /api/orders
+
+# 7. Process payment / Xử lý thanh toán
+POST /api/payments
 ```
 
-### API Testing with Postman / Test API với Postman
+### API Response Format / Định Dạng Response API
 
-1. **Import Collection** / **Import Collection**
-   - Import the API collection from `api-docs.md`
-   - Set up environment variables
+All API responses follow this structure / Tất cả API responses theo cấu trúc này:
 
-2. **Authentication Flow** / **Luồng Xác Thực**
-   ```
-   POST /api/auth/register
-   POST /api/auth/login (save token)
-   ```
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    // Response data here
+  }
+}
+```
 
-3. **Test Core Features** / **Test Tính Năng Cốt Lõi**
-   ```
-   GET /api/products
-   GET /api/search/products
-   POST /api/cart/add
-   POST /api/orders
-   POST /api/payments
-   ```
+**Error Response:**
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "error": "ERROR_CODE"
+}
+```
 
+### Common Status Codes / Mã Trạng Thái Thường Gặp
 
+- `200` - Success / Thành công
+- `201` - Created / Đã tạo
+- `400` - Bad Request / Yêu cầu sai
+- `401` - Unauthorized / Chưa xác thực
+- `403` - Forbidden / Bị cấm
+- `404` - Not Found / Không tìm thấy
+- `500` - Server Error / Lỗi server
 
-### Support / Hỗ Trợ
-- 📖 Documentation: [api-docs.md](api-docs.md)
-- 🌐 Live API: https://api.unimerch.space
+### Authentication / Xác Thực
+
+All protected endpoints require JWT token / Tất cả endpoints được bảo vệ cần JWT token:
+
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+### Rate Limiting / Giới Hạn Tốc Độ
+
+- Standard endpoints: 100 requests/minute
+- Authentication endpoints: 10 requests/minute
+- Payment endpoints: 20 requests/minute
+
+### Support & Contact / Hỗ Trợ & Liên Hệ
+
+- 📧 Email: support@unimerch.space
+- 📖 Documentation: [Full API Docs](api-docs.md)
+- 🐛 Issues: [GitHub Issues](https://github.com/leedontbeshy/Unimerch/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/leedontbeshy/Unimerch/discussions)
+
+### Development Team / Đội Ngũ Phát Triển
+
+- **Backend Lead:** Le Duy Phuc
+- **Contributors:** Open for contributions
+
+### Roadmap / Lộ Trình
+
+- [x] Core API Development
+- [x] Authentication System
+- [x] Product Management
+- [x] Shopping Cart
+- [x] Order Processing
+- [x] Payment Integration
+- [x] Review System
+- [ ] Real-time Notifications
+- [ ] Advanced Analytics Dashboard
+- [ ] Mobile App Integration
+- [ ] Multi-language Support
 
 ---
 
-*Made with ❤️*
+**⭐ If you find this project useful, please give it a star on GitHub!**
+
+**⭐ Nếu bạn thấy dự án này hữu ích, hãy cho nó một star trên GitHub!**
+
+*Made with ❤️ by UniMerch Team*
