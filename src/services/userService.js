@@ -4,9 +4,6 @@ const { hashPassword, comparePassword } = require('../utils/bcrypt');
 
 class UserService {
     
-    /**
-     * Business Logic: Lấy profile user hiện tại
-     */
     static async getUserProfile(userId) {
         const user = await User.findById(userId);
         
@@ -17,9 +14,6 @@ class UserService {
         return this.formatUserProfile(user);
     }
     
-    /**
-     * Business Logic: Cập nhật profile user
-     */
     static async updateUserProfile(userId, profileData) {
         const { fullName, studentId, phone, address } = profileData;
         
@@ -40,10 +34,7 @@ class UserService {
 
         return this.formatUserProfile(updatedUser);
     }
-    
-    /**
-     * Business Logic: Đổi mật khẩu
-     */
+
     static async changePassword(userId, passwordData) {
         const { currentPassword, newPassword, confirmPassword } = passwordData;
         
@@ -83,10 +74,7 @@ class UserService {
 
         return { success: true, message: 'Đổi mật khẩu thành công' };
     }
-    
-    /**
-     * Business Logic: Lấy danh sách users với search và pagination (Admin)
-     */
+
     static async getAllUsers(queryParams) {
         const { page = 1, limit = 20, search } = queryParams;
         const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -124,9 +112,6 @@ class UserService {
         };
     }
     
-    /**
-     * Business Logic: Lấy user theo ID (Admin)
-     */
     static async getUserById(userId) {
         const user = await User.findById(userId);
 
@@ -137,9 +122,6 @@ class UserService {
         return this.formatUserProfile(user);
     }
     
-    /**
-     * Business Logic: Cập nhật user theo ID (Admin)
-     */
     static async updateUserById(userId, userData) {
         const { fullName, studentId, phone, address, role } = userData;
         
@@ -166,9 +148,6 @@ class UserService {
         return this.formatUserProfile(updatedUser);
     }
     
-    /**
-     * Business Logic: Xóa user (Admin)
-     */
     static async deleteUser(userId, currentUserId) {
         // 1. Không cho phép admin tự xóa chính mình
         if (userId === currentUserId) {
@@ -201,9 +180,6 @@ class UserService {
         };
     }
     
-    /**
-     * Business Logic: Lấy thống kê users (Admin)
-     */
     static async getUserStats() {
         try {
             const statsResult = await pool.query(`
@@ -238,10 +214,7 @@ class UserService {
     }
     
     // =================== HELPER METHODS ===================
-    
-    /**
-     * Helper: Format user profile cho response
-     */
+
     static formatUserProfile(user) {
         return {
             id: user.id,
@@ -257,9 +230,6 @@ class UserService {
         };
     }
     
-    /**
-     * Helper: Search users
-     */
     static async searchUsers(searchTerm, limit, offset) {
         try {
             const searchPattern = `%${searchTerm}%`;
@@ -289,9 +259,6 @@ class UserService {
         }
     }
     
-    /**
-     * Helper: Lấy tổng số users
-     */
     static async getTotalUsersCount() {
         try {
             const countResult = await pool.query('SELECT COUNT(*) as total FROM users');
@@ -300,18 +267,12 @@ class UserService {
             throw error;
         }
     }
-    
-    /**
-     * Helper: Validate role
-     */
+
     static isValidRole(role) {
         const validRoles = ['user', 'seller', 'admin'];
         return validRoles.includes(role);
     }
     
-    /**
-     * Helper: Cập nhật user với role (Admin only)
-     */
     static async updateUserWithRole(userId, userData) {
         try {
             const { fullName, studentId, phone, address, role } = userData;
@@ -329,10 +290,7 @@ class UserService {
             throw error;
         }
     }
-    
-    /**
-     * Helper: Kiểm tra business rules khi xóa user
-     */
+
     static async checkUserDeletionRules(userId) {
         try {
             // Kiểm tra user có orders không
@@ -370,10 +328,7 @@ class UserService {
             throw error;
         }
     }
-    
-    /**
-     * Helper: Validate user ID
-     */
+
     static validateUserId(id) {
         const userId = parseInt(id);
         
@@ -384,9 +339,6 @@ class UserService {
         return userId;
     }
     
-    /**
-     * Helper: Validate pagination parameters
-     */
     static validatePaginationParams(page, limit) {
         const pageNum = parseInt(page) || 1;
         const limitNum = parseInt(limit) || 20;
