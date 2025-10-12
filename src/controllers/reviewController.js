@@ -1,10 +1,6 @@
 const ReviewService = require('../services/reviewService');
 const { successResponse, errorResponse } = require('../utils/response');
 
-/**
- * ReviewController - Chỉ xử lý request/response, gọi service để thực hiện business logic
- * Theo nguyên tắc SRP: Controller chỉ xử lý request/response
- */
 
 // 1. GET /api/reviews - Lấy danh sách tất cả reviews
 const getReviews = async (req, res) => {
