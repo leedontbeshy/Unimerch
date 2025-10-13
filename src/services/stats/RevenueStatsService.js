@@ -33,45 +33,7 @@ class RevenueStatsService {
         }
     }
 
-    /**
-     * Lấy thống kê phương thức thanh toán
-     */
-    static async getPaymentMethodAnalytics() {
-        try {
-            const paymentStats = await Stats.getPaymentMethodStats();
-            
-            // Tính tổng và phần trăm
-            const totalAmount = paymentStats.reduce((sum, item) => sum + parseFloat(item.total_amount), 0);
-            const totalTransactions = paymentStats.reduce((sum, item) => sum + parseInt(item.transaction_count), 0);
-            
-            const formattedStats = paymentStats.map(stat => ({
-                ...stat,
-                total_amount: parseFloat(stat.total_amount),
-                avg_amount: parseFloat(stat.avg_amount),
-                success_rate: parseFloat(stat.success_rate),
-                percentage_of_revenue: totalAmount > 0 
-                    ? ((parseFloat(stat.total_amount) / totalAmount) * 100).toFixed(2)
-                    : 0,
-                percentage_of_transactions: totalTransactions > 0
-                    ? ((parseInt(stat.transaction_count) / totalTransactions) * 100).toFixed(2)
-                    : 0
-            }));
 
-            return {
-                payment_methods: formattedStats,
-                summary: {
-                    total_amount: totalAmount,
-                    total_transactions: totalTransactions,
-                    overall_success_rate: totalTransactions > 0
-                        ? ((paymentStats.reduce((sum, item) => sum + parseInt(item.successful_count), 0) / totalTransactions) * 100).toFixed(2)
-                        : 0
-                },
-                generated_at: new Date().toISOString()
-            };
-        } catch (error) {
-            throw new Error(`Lỗi khi lấy thống kê phương thức thanh toán: ${error.message}`);
-        }
-    }
 
     /**
      * So sánh doanh thu giữa các kỳ
