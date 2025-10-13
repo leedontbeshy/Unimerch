@@ -2,7 +2,6 @@ const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const ShoppingCart = require('../models/ShoppingCart');
 const Product = require('../models/Product');
-const Payment = require('../models/Payment');
 const { pool } = require('../../config/database');
 const OrderHelper = require('./order/orderHelper');
 
@@ -172,9 +171,8 @@ class OrderService {
         // Kiểm tra quyền truy cập
         await OrderHelper.checkOrderAccess(order, userId, userRole);
 
-        // Lấy items và payments
+        // Lấy order items
         order.items = await OrderItem.findByOrderId(order.id);
-        order.payments = await Payment.findByOrderId(order.id);
 
         return order;
     }
@@ -238,6 +236,28 @@ class OrderService {
         }
     }
     
+    static async confirmOrder(orderId, userId, userRole) {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            throw new Error('Không tìm thấy đơn hàng');
+        }
+
+        // Kiểm tra quyền xác nhận
+        if (userRole !== 'admin' && order.user_id !== userId) {
+            throw new Error('Không có quyền xác nhận đơn hàng này');
+        }
+
+        // Chỉ có thể xác nhận đơn hàng khi status = 'pending'
+        if (order.status !== 'pending') {
+            throw new Error('Chỉ có thể xác nhận đơn hàng ở trạng thái chờ xử lý');
+        }
+
+        // Cập nhật trạng thái thành confirmed
+        const confirmedOrder = await Order.updateStatus(orderId, 'confirmed');
+        
+        return confirmedOrder;
+    }
+
     static async getAllOrdersForAdmin(queryParams) {
         const { page = 1, limit = 20, status, user_id } = queryParams;
         const offset = (parseInt(page) - 1) * parseInt(limit);
