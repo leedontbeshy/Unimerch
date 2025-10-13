@@ -22,7 +22,8 @@ class Stats {
                     (SELECT COUNT(*) FROM orders) as total_orders,
                     (SELECT COUNT(*) FROM orders WHERE status = 'completed') as completed_orders,
                     (SELECT COUNT(*) FROM reviews) as total_reviews,
-                    (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status IN ('completed', 'delivered')) as total_revenue
+                    (SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status IN ('completed', 'delivered')) as total_revenue,
+                    (SELECT COUNT(*) FROM payments WHERE payment_status = 'completed') as successful_payments
             `;
             
             const result = await pool.query(query);

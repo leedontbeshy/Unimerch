@@ -47,27 +47,7 @@ const getUserOrders = async (req, res) => {
     }
 };
 
-// 3. PUT /api/orders/:id/confirm - Xác nhận đơn hàng
-const confirmOrder = async (req, res) => {
-    try {
-        const orderId = req.params.id;
-        const userId = req.user.id;
-        const userRole = req.user.role;
-
-        const result = await OrderService.confirmOrder(orderId, userId, userRole);
-        return successResponse(res, result, 'Xác nhận đơn hàng thành công');
-    } catch (error) {
-        console.error('Confirm order error:', error);
-        if (error.message.includes('Không tìm thấy đơn hàng') ||
-            error.message.includes('Không có quyền') ||
-            error.message.includes('Chỉ có thể xác nhận')) {
-            return errorResponse(res, error.message, 400);
-        }
-        return errorResponse(res, 'Lỗi khi xác nhận đơn hàng', 500);
-    }
-};
-
-// 4. GET /api/orders/:id - Lấy chi tiết đơn hàng
+// 3. GET /api/orders/:id - Lấy chi tiết đơn hàng
 const getOrderById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -243,7 +223,6 @@ module.exports = {
     getUserOrders,
     getOrderById,
     updateOrderStatus,
-    confirmOrder,
     cancelOrder,
     getAllOrders,
     getSellerOrders,
