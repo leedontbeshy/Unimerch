@@ -8,7 +8,6 @@ const createOrder = async (req, res) => {
         const userId = req.user.id;
         const { from_cart = true } = req.body;
 
-        // Controller chỉ gọi service
         let result;
         if (from_cart) {
             result = await OrderService.createOrderFromCart(userId, req.body);
@@ -19,8 +18,7 @@ const createOrder = async (req, res) => {
         return successResponse(res, result, 'Tạo đơn hàng thành công', 201);
     } catch (error) {
         console.error('Create order error:', error);
-        
-        // Xử lý các lỗi business logic từ service
+
         if (error.message.includes('Giỏ hàng trống') || 
             error.message.includes('không khả dụng') || 
             error.message.includes('không đủ số lượng') ||
@@ -94,7 +92,6 @@ const updateOrderStatus = async (req, res) => {
     } catch (error) {
         console.error('Update order status error:', error);
         
-        // Xử lý lỗi từ service
         if (error.message === 'Không tìm thấy đơn hàng') {
             return errorResponse(res, error.message, 404);
         }
@@ -118,8 +115,6 @@ const cancelOrder = async (req, res) => {
         const { id } = req.params;
         const userId = req.user.id;
         const userRole = req.user.role;
-
-        // Controller chỉ gọi service
         const cancelledOrder = await OrderService.cancelOrder(
             parseInt(id), 
             userId, 
@@ -130,7 +125,6 @@ const cancelOrder = async (req, res) => {
     } catch (error) {
         console.error('Cancel order error:', error);
         
-        // Xử lý lỗi từ service
         if (error.message === 'Không tìm thấy đơn hàng') {
             return errorResponse(res, error.message, 404);
         }
@@ -147,7 +141,7 @@ const cancelOrder = async (req, res) => {
 // 6. GET /api/admin/orders - Lấy tất cả đơn hàng (Admin)
 const getAllOrders = async (req, res) => {
     try {
-        // Controller chỉ gọi service
+
         const result = await OrderService.getAllOrdersForAdmin(req.query);
 
         return successResponse(res, result, 'Lấy danh sách tất cả đơn hàng thành công');
@@ -162,7 +156,6 @@ const getSellerOrders = async (req, res) => {
     try {
         const sellerId = req.user.id;
         
-        // Controller chỉ gọi service
         const result = await OrderService.getSellerOrders(sellerId, req.query);
 
         return successResponse(res, result, 'Lấy danh sách đơn hàng của seller thành công');
