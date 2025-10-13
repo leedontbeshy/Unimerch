@@ -8,9 +8,11 @@
 
 ### 🌟 Overview
 
-**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js , this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
+**UniMerch API** is a comprehensive e-commerce backend platform specifically designed for university merchandise trading. Built with pure Node.js, this API provides a robust, scalable foundation for online marketplace applications targeting university students and communities.
 
 🌐 **Live API:** https://api.unimerch.space
+
+📮 **Postman Collection:** [Import Collection](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
 ### ✨ Key Features
 
@@ -66,6 +68,12 @@
 - Order statistics and trends
 - Payment method analysis
 - User behavior insights
+
+#### ⭐ **Review System**
+- Product reviews and ratings
+- Review validation for verified purchases
+- Rating analytics and statistics
+- Top-rated products showcase
 
 ### 🛠️ Technology Stack
 
@@ -148,63 +156,163 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 - **Cart:** `/api/cart/*` - Shopping cart management
 - **Orders:** `/api/orders/*` - Order creation, tracking, management
 - **Payments:** `/api/payments/*` - Payment processing, refunds
+- **Reviews:** `/api/reviews/*` - Product reviews and ratings
 - **Admin:** `/api/admin/*` - Admin-only operations
 - **Seller:** `/api/seller/*` - Seller-specific operations
 
-### 🧪 Testing
+### 🧪 Testing with Postman
 
-#### **Postman Testing**
-1. Import API collection from `api-docs.md` (updating)
-2. Set environment variables:
-   ```
-   baseURL: http://localhost:3000
-   token: (JWT token after login)
-   adminToken: (Admin JWT token)
-   ```
-3. Run authentication flow first
-4. Test all endpoints systematically
+#### **Import Collection**
+1. **Quick Import:** Click the button below to import directly to Postman
+   
+   [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
-#### **Test Sequence:**
+2. **Manual Import:** 
+   - Open Postman
+   - Click "Import" button
+   - Paste the collection link or use the JSON file
+   - Collection Link: `https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684`
+
+#### **Setup Environment Variables**
+Create a new environment in Postman with these variables:
 ```
-Authentication → User Profile → Products → Search → Cart → Orders → Payments
+unimerch: https://api.unimerch.space
+token_test_16_09: (Will be set after login)
+user_token_16_09: (Will be set after user login)
+bao_token: (Will be set after specific user login)
 ```
+
+#### **Test Sequence**
+Follow this order for systematic testing:
+
+1. **Authentication Flow**
+   ```
+   POST /api/auth/register → Create account
+   POST /api/auth/login → Get JWT token (save to environment)
+   GET /api/users/profile → Verify authentication
+   ```
+
+2. **Product Management**
+   ```
+   GET /api/products → Browse products
+   GET /api/products/1 → View product details
+   GET /api/products/featured → Get featured products
+   POST /api/products → Create product (admin/seller)
+   ```
+
+3. **Shopping Cart**
+   ```
+   POST /api/cart/add → Add items to cart
+   GET /api/cart → View cart
+   PUT /api/cart/update/:id → Update quantity
+   GET /api/cart/validate → Validate cart before checkout
+   ```
+
+4. **Order Processing**
+   ```
+   POST /api/orders → Create order from cart
+   GET /api/orders → View user orders
+   GET /api/orders/:id → View order details
+   PUT /api/orders/:id/status → Update order status
+   ```
+
+5. **Payment Processing**
+   ```
+   POST /api/payments → Create payment
+   GET /api/payments/:id → View payment details
+   PUT /api/payments/:id/status → Update payment status
+   GET /api/payments/stats → View payment statistics (admin)
+   ```
+
+6. **Reviews & Ratings**
+   ```
+   POST /api/reviews → Create review
+   GET /api/reviews/product/:id → Get product reviews
+   GET /api/reviews/product/:id/stats → Get rating statistics
+   PUT /api/reviews/:id → Update review
+   ```
+
+#### **Available Collections**
+
+The Postman collection includes:
+
+- **Auth APIs** (6 endpoints)
+  - Register, Login, Logout
+  - Password Reset & Recovery
+  
+- **User Management APIs** (4 endpoints)
+  - Profile management
+  - Password change
+  - Admin user operations
+
+- **Product APIs** (8 endpoints)
+  - CRUD operations
+  - Search and filters
+  - Featured products
+
+- **Category APIs** (2 endpoints)
+  - Category management
+  - Category updates
+
+- **Cart APIs** (7 endpoints)
+  - Cart management
+  - Item operations
+  - Cart validation
+
+- **Order APIs** (10 endpoints)
+  - Order creation (cart & direct)
+  - Order tracking
+  - Status management
+  - Admin & seller views
+
+- **Payment APIs** (8 endpoints)
+  - Payment processing
+  - Payment tracking
+  - Refunds
+  - Revenue analytics
+
+- **Review APIs** (11 endpoints)
+  - Review CRUD operations
+  - Rating statistics
+  - Top products
+  - User reviews
 
 ### 📁 Project Structure
 
 ```
 WebDevFinal/
-├── 📄 server.js                    # Entry point chính
-├── 📄 package.json                 # Dependencies và scripts
-├── 📄 README.md                    # Tài liệu project
-├── 📄 api-docs.md                  # Tài liệu API chi tiết
+├── 📄 server.js                    # Main entry point
+├── 📄 package.json                 # Dependencies & scripts
+├── 📄 README.md                    # Project documentation
+├── 📄 api-docs.md                  # Detailed API documentation
 ├── 📄 db.txt                       # Database schema
 │
-├── 📂 config/                      # Cấu hình hệ thống
-│   ├── config.js                   # Cấu hình chung
-│   └── database.js                 # Cấu hình database
+├── 📂 config/                      # System configuration
+│   ├── config.js                   # General config
+│   └── database.js                 # Database config
 │
-├── 📂 src/                         # Source code chính
+├── 📂 src/                         # Main source code
 │   ├── 📄 app.js                   # Application setup
 │   │
-│   ├── 📂 core/                    # Hệ thống cốt lõi (Custom Framework)
-│   │   ├── server.js               # HTTP server tùy chỉnh
+│   ├── 📂 core/                    # Core system (Custom Framework)
+│   │   ├── server.js               # Custom HTTP server
 │   │   ├── router.js               # Routing system
 │   │   ├── request.js              # Request handling
 │   │   ├── response.js             # Response formatting
 │   │   └── middleware.js           # Middleware pipeline
 │   │
 │   ├── 📂 controllers/             # API Controllers
-│   │   ├── authController.js       # Xác thực
-│   │   ├── userController.js       # Quản lý user
-│   │   ├── productController.js    # Quản lý sản phẩm
-│   │   ├── searchController.js     # Tìm kiếm nâng cao
-│   │   ├── cartController.js       # Giỏ hàng
-│   │   ├── orderController.js      # Đơn hàng
-│   │   ├── paymentController.js    # Thanh toán
-│   │   ├── categoryController.js   # Danh mục
-│   │   ├── reviewController.js     # Đánh giá
-│   │   ├── statsController.js      # Thống kê
-│   │   └── uploadController.js     # Upload file
+│   │   ├── authController.js       # Authentication
+│   │   ├── userController.js       # User management
+│   │   ├── productController.js    # Product management
+│   │   ├── searchController.js     # Advanced search
+│   │   ├── cartController.js       # Shopping cart
+│   │   ├── orderController.js      # Orders
+│   │   ├── paymentController.js    # Payments
+│   │   ├── categoryController.js   # Categories
+│   │   ├── reviewController.js     # Reviews
+│   │   ├── statsController.js      # Statistics
+│   │   └── uploadController.js     # File upload
 │   │
 │   ├── 📂 models/                  # Database Models
 │   │   ├── User.js
@@ -261,16 +369,14 @@ WebDevFinal/
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
 │   │
-│   ├── 📂 utils/                   # Utility Functions
-│   │   ├── bcrypt.js               # Password hashing
-│   │   ├── jwt.js                  # JWT handling
-│   │   ├── email.js                # Email service
-│   │   ├── response.js             # Response helpers
-│   │   ├── validator.js            # Validation helpers
-│   │   ├── constants.js            # App constants
-│   │   └── SearchQueryBuilder.js   # Advanced search utilities
-│   
-│   
+│   └── 📂 utils/                   # Utility Functions
+│       ├── bcrypt.js               # Password hashing
+│       ├── jwt.js                  # JWT handling
+│       ├── email.js                # Email service
+│       ├── response.js             # Response helpers
+│       ├── validator.js            # Validation helpers
+│       ├── constants.js            # App constants
+│       └── SearchQueryBuilder.js   # Advanced search utilities
 │
 └── 📂 test/                        # Test Files
     ├── supabase_test_connection.js
@@ -286,12 +392,16 @@ WebDevFinal/
 5. Update documentation
 6. Submit pull request
 
+### 📝 License
+
+This project is licensed under the MIT License.
 
 ### 🔗 Links
 
 - **Live API:** https://api.unimerch.space
 - **Documentation:** [API Docs](api-docs.md)
-- **Frontend Repository:** [Contact for access]
+- **Postman Collection:** [Import Here](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+- **GitHub Repository:** https://github.com/leedontbeshy/Unimerch
 
 ---
 
@@ -299,9 +409,11 @@ WebDevFinal/
 
 ### 🌟 Tổng Quan
 
-**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần , API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
+**UniMerch API** là một nền tảng backend thương mại điện tử toàn diện được thiết kế đặc biệt cho việc mua bán đồ dùng sinh viên trong các trường đại học. Được xây dựng bằng Node.js thuần, API này cung cấp một nền tảng mạnh mẽ, có thể mở rộng cho các ứng dụng thương mại điện tử nhắm đến sinh viên và cộng đồng đại học.
 
 🌐 **API Trực Tuyến:** https://api.unimerch.space
+
+📮 **Collection Postman:** [Import Collection](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
 ### ✨ Tính Năng Chính
 
@@ -345,7 +457,7 @@ WebDevFinal/
 - Hệ thống xử lý hoàn tiền
 
 #### 🔍 **Hệ Thống Tìm Kiếm Nâng Cao**
-- Tìm kiếm  sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
+- Tìm kiếm toàn cục sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
 - Tự động hoàn thành và gợi ý thông minh
 - Lọc và sắp xếp đa tiêu chí
 - Lịch sử tìm kiếm và phân tích
@@ -358,10 +470,16 @@ WebDevFinal/
 - Phân tích phương thức thanh toán
 - Thông tin chi tiết về hành vi người dùng
 
+#### ⭐ **Hệ Thống Đánh Giá**
+- Đánh giá và xếp hạng sản phẩm
+- Xác thực đánh giá cho đơn hàng đã mua
+- Phân tích và thống kê xếp hạng
+- Showcase sản phẩm đánh giá cao nhất
+
 ### 🛠️ Công Nghệ Sử Dụng
 
 #### **Công Nghệ Cốt Lõi**
-- **Backend:** Node.js thuần 
+- **Backend:** Node.js thuần
 - **Cơ Sở Dữ Liệu:** PostgreSQL với hosting Supabase
 - **Xác Thực:** JSON Web Tokens (JWT)
 - **Bảo Mật Mật Khẩu:** Mã hóa bcryptjs
@@ -439,26 +557,126 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 - **Giỏ hàng:** `/api/cart/*` - Quản lý giỏ hàng
 - **Đơn hàng:** `/api/orders/*` - Tạo đơn, theo dõi, quản lý
 - **Thanh toán:** `/api/payments/*` - Xử lý thanh toán, hoàn tiền
+- **Đánh giá:** `/api/reviews/*` - Đánh giá và xếp hạng sản phẩm
 - **Admin:** `/api/admin/*` - Thao tác chỉ dành cho admin
 - **Seller:** `/api/seller/*` - Thao tác đặc thù cho seller
 
-### 🧪 Testing
+### 🧪 Testing với Postman
 
-#### **Testing với Postman**
-1. Import API collection từ `api-docs.md` (đang cập nhật)
-2. Thiết lập biến môi trường:
-   ```
-   baseURL: http://localhost:3000
-   token: (JWT token sau khi đăng nhập)
-   adminToken: (Admin JWT token)
-   ```
-3. Chạy authentication flow trước
-4. Test tất cả endpoint một cách có hệ thống
+#### **Import Collection**
+1. **Import Nhanh:** Click nút dưới đây để import trực tiếp vào Postman
+   
+   [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
 
-#### **Trình Tự Test:**
+2. **Import Thủ Công:**
+   - Mở Postman
+   - Click nút "Import"
+   - Dán link collection hoặc sử dụng file JSON
+   - Link Collection: `https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684`
+
+#### **Thiết Lập Biến Môi Trường**
+Tạo môi trường mới trong Postman với các biến sau:
 ```
-Authentication → User Profile → Products → Search → Cart → Orders → Payments -> Reviews ->
+unimerch: https://api.unimerch.space
+token_test_16_09: (Sẽ được set sau khi login)
+user_token_16_09: (Sẽ được set sau khi user login)
+bao_token: (Sẽ được set sau khi user cụ thể login)
 ```
+
+#### **Trình Tự Test**
+Theo dõi thứ tự này để test có hệ thống:
+
+1. **Luồng Xác Thực**
+   ```
+   POST /api/auth/register → Tạo tài khoản
+   POST /api/auth/login → Lấy JWT token (lưu vào environment)
+   GET /api/users/profile → Xác thực authentication
+   ```
+
+2. **Quản Lý Sản Phẩm**
+   ```
+   GET /api/products → Duyệt sản phẩm
+   GET /api/products/1 → Xem chi tiết sản phẩm
+   GET /api/products/featured → Lấy sản phẩm nổi bật
+   POST /api/products → Tạo sản phẩm (admin/seller)
+   ```
+
+3. **Giỏ Hàng**
+   ```
+   POST /api/cart/add → Thêm items vào giỏ
+   GET /api/cart → Xem giỏ hàng
+   PUT /api/cart/update/:id → Cập nhật số lượng
+   GET /api/cart/validate → Xác thực giỏ trước checkout
+   ```
+
+4. **Xử Lý Đơn Hàng**
+   ```
+   POST /api/orders → Tạo đơn từ giỏ hàng
+   GET /api/orders → Xem đơn hàng của user
+   GET /api/orders/:id → Xem chi tiết đơn hàng
+   PUT /api/orders/:id/status → Cập nhật trạng thái đơn
+   ```
+
+5. **Xử Lý Thanh Toán**
+   ```
+   POST /api/payments → Tạo thanh toán
+   GET /api/payments/:id → Xem chi tiết thanh toán
+   PUT /api/payments/:id/status → Cập nhật trạng thái thanh toán
+   GET /api/payments/stats → Xem thống kê thanh toán (admin)
+   ```
+
+6. **Đánh Giá & Xếp Hạng**
+   ```
+   POST /api/reviews → Tạo đánh giá
+   GET /api/reviews/product/:id → Lấy đánh giá sản phẩm
+   GET /api/reviews/product/:id/stats → Lấy thống kê xếp hạng
+   PUT /api/reviews/:id → Cập nhật đánh giá
+   ```
+
+#### **Bộ Sưu Tập Có Sẵn**
+
+Bộ sưu tập Postman bao gồm:
+
+- **Auth APIs** (6 endpoints)
+  - Đăng ký, Đăng nhập, Đăng xuất
+  - Reset & Khôi phục mật khẩu
+  
+- **User Management APIs** (4 endpoints)
+  - Quản lý hồ sơ
+  - Đổi mật khẩu
+  - Thao tác admin user
+
+- **Product APIs** (8 endpoints)
+  - Thao tác CRUD
+  - Tìm kiếm và lọc
+  - Sản phẩm nổi bật
+
+- **Category APIs** (2 endpoints)
+  - Quản lý danh mục
+  - Cập nhật danh mục
+
+- **Cart APIs** (7 endpoints)
+  - Quản lý giỏ hàng
+  - Thao tác items
+  - Xác thực giỏ hàng
+
+- **Order APIs** (10 endpoints)
+  - Tạo đơn (giỏ hàng & trực tiếp)
+  - Theo dõi đơn hàng
+  - Quản lý trạng thái
+  - Views admin & seller
+
+- **Payment APIs** (8 endpoints)
+  - Xử lý thanh toán
+  - Theo dõi thanh toán
+  - Hoàn tiền
+  - Phân tích doanh thu
+
+- **Review APIs** (11 endpoints)
+  - Thao tác CRUD đánh giá
+  - Thống kê xếp hạng
+  - Sản phẩm top
+  - Đánh giá của user
 
 ### 📁 Cấu Trúc Project
 
@@ -552,21 +770,18 @@ WebDevFinal/
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
 │   │
-│   ├── 📂 utils/                   # Utility Functions
-│   │   ├── bcrypt.js               # Password hashing
-│   │   ├── jwt.js                  # JWT handling
-│   │   ├── email.js                # Email service
-│   │   ├── response.js             # Response helpers
-│   │   ├── validator.js            # Validation helpers
-│   │   ├── constants.js            # App constants
-│   │   └── SearchQueryBuilder.js   # Advanced search utilities
-│   
-│   
+│   └── 📂 utils/                   # Utility Functions
+│       ├── bcrypt.js               # Password hashing
+│       ├── jwt.js                  # JWT handling
+│       ├── email.js                # Email service
+│       ├── response.js             # Response helpers
+│       ├── validator.js            # Validation helpers
+│       ├── constants.js            # App constants
+│       └── SearchQueryBuilder.js   # Advanced search utilities
 │
 └── 📂 test/                        # Test Files
     ├── supabase_test_connection.js
     └── test-user-model.js
-
 ```
 
 ### 🤝 Đóng Góp
@@ -578,12 +793,16 @@ WebDevFinal/
 5. Cập nhật tài liệu
 6. Submit pull request
 
+### 📝 Giấy Phép
+
+Dự án này được cấp phép theo giấy phép MIT.
 
 ### 🔗 Liên Kết
 
 - **API Trực Tuyến:** https://api.unimerch.space
 - **Tài Liệu:** [API Docs](api-docs.md)
-- **Frontend Repository:** [Liên hệ để truy cập]
+- **Bộ Sưu Tập Postman:** [Import Tại Đây](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+- **GitHub Repository:** https://github.com/leedontbeshy/Unimerch
 
 ---
 
@@ -593,54 +812,161 @@ WebDevFinal/
 - Node.js 16.x or higher
 - PostgreSQL database (or Supabase account)
 - npm or yarn package manager
+- Postman (for API testing)
 
-### Installation / Cài Đặt
+### Installation Steps / Các Bước Cài Đặt
+
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/leedontbeshy/Unimerch.git
+   cd WebDevFinal
+   ```
+
+2. **Install Dependencies / Cài Đặt Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup / Thiết Lập Môi Trường**
+   
+   Create `.env` file / Tạo file `.env`:
+   ```env
+   DB_HOST=db.xxx.supabase.co
+   DB_USER=postgres
+   DB_PASSWORD=your_password
+   DB_NAME=postgres
+   DB_PORT=5432
+   
+   JWT_SECRET=your-secret-key
+   JWT_EXPIRES_IN=7d
+   
+   PORT=3000
+   NODE_ENV=development
+   
+   RESEND_API_KEY=your_resend_api_key
+   ```
+
+4. **Database Connection Test / Kiểm Tra Kết Nối Database**
+   ```bash
+   node -e "require('./config/database').testConnection()"
+   ```
+
+5. **Start Server / Khởi Động Server**
+   ```bash
+   npm start
+   # or for development / hoặc cho development
+   npm run dev
+   ```
+
+6. **Import Postman Collection / Import Bộ Sưu Tập Postman**
+   
+   Click to import: [![Run in Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/leduyphuc-8968207/unimerch/collection/43636674-82906095-a87a-458d-887f-0dafb7096684)
+
+### Quick Test Flow / Luồng Test Nhanh
+
 ```bash
-# Clone the repository
-git clone https://github.com/leedontbeshy/Unimerch.git
-cd WebDevFinal
+# 1. Register a new user / Đăng ký user mới
+POST /api/auth/register
 
-# Install dependencies
-npm install
+# 2. Login / Đăng nhập
+POST /api/auth/login
+# Save the token from response / Lưu token từ response
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your configuration
+# 3. View profile / Xem hồ sơ
+GET /api/users/profile
+# Use token in Authorization header / Dùng token trong Authorization header
 
-# Test database connection
-npm run test:db
+# 4. Browse products / Duyệt sản phẩm
+GET /api/products
 
-# Start development server
-npm run dev
+# 5. Add to cart / Thêm vào giỏ
+POST /api/cart/add
+
+# 6. Create order / Tạo đơn hàng
+POST /api/orders
+
+# 7. Process payment / Xử lý thanh toán
+POST /api/payments
 ```
 
-### API Testing with Postman / Test API với Postman
+### API Response Format / Định Dạng Response API
 
-1. **Import Collection** / **Import Collection**
-   - Import the API collection from `api-docs.md`
-   - Set up environment variables
+All API responses follow this structure / Tất cả API responses theo cấu trúc này:
 
-2. **Authentication Flow** / **Luồng Xác Thực**
-   ```
-   POST /api/auth/register
-   POST /api/auth/login (save token)
-   ```
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    // Response data here
+  }
+}
+```
 
-3. **Test Core Features** / **Test Tính Năng Cốt Lõi**
-   ```
-   GET /api/products
-   GET /api/search/products
-   POST /api/cart/add
-   POST /api/orders
-   POST /api/payments
-   ```
+**Error Response:**
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "error": "ERROR_CODE"
+}
+```
 
+### Common Status Codes / Mã Trạng Thái Thường Gặp
 
+- `200` - Success / Thành công
+- `201` - Created / Đã tạo
+- `400` - Bad Request / Yêu cầu sai
+- `401` - Unauthorized / Chưa xác thực
+- `403` - Forbidden / Bị cấm
+- `404` - Not Found / Không tìm thấy
+- `500` - Server Error / Lỗi server
 
-### Support / Hỗ Trợ
-- 📖 Documentation: [api-docs.md](api-docs.md)
-- 🌐 Live API: https://api.unimerch.space
+### Authentication / Xác Thực
+
+All protected endpoints require JWT token / Tất cả endpoints được bảo vệ cần JWT token:
+
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+### Rate Limiting / Giới Hạn Tốc Độ
+
+- Standard endpoints: 100 requests/minute
+- Authentication endpoints: 10 requests/minute
+- Payment endpoints: 20 requests/minute
+
+### Support & Contact / Hỗ Trợ & Liên Hệ
+
+- 📧 Email: support@unimerch.space
+- 📖 Documentation: [Full API Docs](api-docs.md)
+- 🐛 Issues: [GitHub Issues](https://github.com/leedontbeshy/Unimerch/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/leedontbeshy/Unimerch/discussions)
+
+### Development Team / Đội Ngũ Phát Triển
+
+- **Backend Lead:** Le Duy Phuc
+- **Contributors:** Open for contributions
+
+### Roadmap / Lộ Trình
+
+- [x] Core API Development
+- [x] Authentication System
+- [x] Product Management
+- [x] Shopping Cart
+- [x] Order Processing
+- [x] Payment Integration
+- [x] Review System
+- [ ] Real-time Notifications
+- [ ] Advanced Analytics Dashboard
+- [ ] Mobile App Integration
+- [ ] Multi-language Support
 
 ---
 
-*Made with ❤️*
+**⭐ If you find this project useful, please give it a star on GitHub!**
+
+**⭐ Nếu bạn thấy dự án này hữu ích, hãy cho nó một star trên GitHub!**
+
+*Made with ❤️ by UniMerch Team*
