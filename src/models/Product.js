@@ -421,29 +421,26 @@ class Product {
     }
 
     // Cập nhật số lượng sản phẩm
-static async updateQuantity(id, quantityChange) {
+    static async updateQuantity(id, quantity) {
         try {
             const result = await pool.query(`
                 UPDATE products 
-                SET 
-                    quantity = quantity + $1,
+                SET quantity = $1, 
                     status = CASE 
-                        WHEN (quantity + $1) <= 0 THEN 'out_of_stock' 
-                        WHEN (quantity + $1) > 0 AND status = 'out_of_stock' THEN 'available'
-                        ELSE status
+                        WHEN $1 <= 0 THEN 'out_of_stock' 
+                        ELSE 'available' 
                     END,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = $2
                 RETURNING *
-            `, [quantityChange, id]);
+            `, [quantity, id]);
 
             return result.rows[0] || null;
         } catch (error) {
             throw error;
         }
     }
-    }
-
+}
 
 
 

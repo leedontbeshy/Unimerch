@@ -4,6 +4,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 
 const register = async (req, res) => {
     try {
+        // Controller chỉ nhận request và gọi service
         const result = await AuthService.registerUser(req.body);
         
         return successResponse(res, result, 'Đăng ký thành công', 201);
@@ -11,10 +12,12 @@ const register = async (req, res) => {
     } catch (error) {
         console.error('Register error:', error);
         
+        // Xử lý các lỗi business logic từ service
         if (error.message === 'Email đã được sử dụng' || error.message === 'Username đã được sử dụng') {
             return errorResponse(res, error.message, 409);
         }
-
+        
+        // PostgreSQL duplicate key error
         if (error.code === '23505') {
             return errorResponse(res, 'Email hoặc username đã tồn tại', 409);
         }
