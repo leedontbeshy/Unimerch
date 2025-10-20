@@ -42,7 +42,7 @@ const testConnection = async () => {
   }
 };
 
-// Graceful shutdown (chỉ thực thi khi app thực sự tắt)
+
 process.on('SIGINT', async () => {
   console.log('SIGINT received. Closing database pool...');
   await pool.end();
@@ -54,7 +54,6 @@ process.on('SIGTERM', async () => {
   console.log('SIGTERM received. Closing database pool...');
   await pool.end();
   console.log('Database pool closed.');
-  // Không gọi process.exit ở đây, Render sẽ kill container
 });
 
 module.exports = { pool, testConnection };

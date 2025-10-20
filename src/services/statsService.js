@@ -4,7 +4,6 @@ const BusinessStatsService = require('./stats/BusinessStatsService');
 
 /**
  * StatsService - Main service aggregator cho tất cả stats services
- * Theo nguyên tắc SRP: Service chỉ làm nhiệm vụ điều phối và tổng hợp
  */
 class StatsService {
     
