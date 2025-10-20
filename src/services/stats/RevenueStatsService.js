@@ -33,49 +33,10 @@ class RevenueStatsService {
         }
     }
 
-    
-
     /**
-     * So sánh doanh thu giữa các kỳ
+     * Lấy thống kê phương thức thanh toán
      */
-    static async compareRevenue(currentPeriod = 'day', comparisonPeriod = 'day', limit = 30) {
-        try {
-            this.validatePeriod(currentPeriod);
-            this.validatePeriod(comparisonPeriod);
-            
-            const [currentData, previousData] = await Promise.all([
-                Stats.getRevenueStats(currentPeriod, limit),
-                Stats.getRevenueStats(comparisonPeriod, limit * 2) // Lấy nhiều hơn để so sánh
-            ]);
-
-            const currentSummary = this.calculateRevenueSummary(currentData);
-            const previousSummary = this.calculateRevenueSummary(previousData.slice(limit)); // Lấy kỳ trước
-
-            // Tính tỷ lệ tăng trưởng
-            const growthMetrics = {
-                revenue_growth: this.calculateGrowthRate(currentSummary.total_revenue, previousSummary.total_revenue),
-                orders_growth: this.calculateGrowthRate(currentSummary.total_orders, previousSummary.total_orders),
-                avg_order_value_growth: this.calculateGrowthRate(currentSummary.avg_order_value, previousSummary.avg_order_value),
-                conversion_rate_growth: this.calculateGrowthRate(currentSummary.conversion_rate, previousSummary.conversion_rate)
-            };
-
-            return {
-                current_period: {
-                    period: currentPeriod,
-                    data: currentData,
-                    summary: currentSummary
-                },
-                previous_period: {
-                    period: comparisonPeriod,
-                    summary: previousSummary
-                },
-                growth_metrics: growthMetrics,
-                generated_at: new Date().toISOString()
-            };
-        } catch (error) {
-            throw new Error(`Lỗi khi so sánh doanh thu: ${error.message}`);
-        }
-    }
+    // payment method analytics and revenue comparison removed (endpoints unused)
 
     /**
      * Tính toán summary cho dữ liệu doanh thu

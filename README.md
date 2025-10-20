@@ -49,11 +49,11 @@
 - Admin and seller order management
 - Order cancellation and refund support
 
-#### 💳 **Payment System**
-- Multiple payment methods support (COD, Credit/Debit Cards, E-wallets)
-- Payment status tracking
-- Revenue analytics and reporting
-- Refund processing system
+#### � **Order Confirmation**
+- Simple order confirmation flow
+- Order status tracking
+- Email notifications for order updates
+- Order cancellation system
 
 #### 🔍 **Advanced Search System**
 - Global search across products, categories, users, orders, and reviews
@@ -154,8 +154,7 @@ Comprehensive API documentation is available at: **[API Documentation](api-docs.
 - **Products:** `/api/products/*` - Product catalog, CRUD operations
 - **Search:** `/api/search/*` - Advanced search, filters, autocomplete
 - **Cart:** `/api/cart/*` - Shopping cart management
-- **Orders:** `/api/orders/*` - Order creation, tracking, management
-- **Payments:** `/api/payments/*` - Payment processing, refunds
+- **Orders:** `/api/orders/*` - Order creation, confirmation, tracking, management
 - **Reviews:** `/api/reviews/*` - Product reviews and ratings
 - **Admin:** `/api/admin/*` - Admin-only operations
 - **Seller:** `/api/seller/*` - Seller-specific operations
@@ -216,12 +215,11 @@ Follow this order for systematic testing:
    PUT /api/orders/:id/status → Update order status
    ```
 
-5. **Payment Processing**
+5. **Order Confirmation**
    ```
-   POST /api/payments → Create payment
-   GET /api/payments/:id → View payment details
-   PUT /api/payments/:id/status → Update payment status
-   GET /api/payments/stats → View payment statistics (admin)
+   POST /api/orders/confirm → Confirm order
+   GET /api/orders/:id/status → Check order status
+   PUT /api/orders/:id/cancel → Cancel order
    ```
 
 6. **Reviews & Ratings**
@@ -259,17 +257,13 @@ The Postman collection includes:
   - Item operations
   - Cart validation
 
-- **Order APIs** (10 endpoints)
+- **Order APIs** (12 endpoints)
   - Order creation (cart & direct)
+  - Order confirmation
   - Order tracking
   - Status management
+  - Order cancellation
   - Admin & seller views
-
-- **Payment APIs** (8 endpoints)
-  - Payment processing
-  - Payment tracking
-  - Refunds
-  - Revenue analytics
 
 - **Review APIs** (11 endpoints)
   - Review CRUD operations
@@ -308,7 +302,6 @@ WebDevFinal/
 │   │   ├── searchController.js     # Advanced search
 │   │   ├── cartController.js       # Shopping cart
 │   │   ├── orderController.js      # Orders
-│   │   ├── paymentController.js    # Payments
 │   │   ├── categoryController.js   # Categories
 │   │   ├── reviewController.js     # Reviews
 │   │   ├── statsController.js      # Statistics
@@ -319,7 +312,6 @@ WebDevFinal/
 │   │   ├── Product.js
 │   │   ├── Order.js
 │   │   ├── OrderItem.js
-│   │   ├── Payment.js
 │   │   ├── Category.js
 │   │   ├── Review.js
 │   │   ├── ShoppingCart.js
@@ -338,7 +330,6 @@ WebDevFinal/
 │   │   ├── productService.js
 │   │   ├── cartService.js
 │   │   ├── orderService.js
-│   │   ├── paymentService.js
 │   │   ├── categoryService.js
 │   │   ├── reviewService.js
 │   │   ├── 📂 search/              # Search Services
@@ -364,7 +355,6 @@ WebDevFinal/
 │   │   ├── productValidation.js
 │   │   ├── cartValidation.js
 │   │   ├── orderValidation.js
-│   │   ├── paymentValidation.js
 │   │   ├── categoryValidation.js
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
@@ -450,11 +440,11 @@ This project is licensed under the MIT License.
 - Quản lý đơn hàng cho Admin và Seller
 - Hỗ trợ hủy đơn và hoàn tiền
 
-#### 💳 **Hệ Thống Thanh Toán**
-- Hỗ trợ nhiều phương thức thanh toán (COD, Thẻ tín dụng/ghi nợ, Ví điện tử)
-- Theo dõi trạng thái thanh toán
-- Phân tích doanh thu và báo cáo
-- Hệ thống xử lý hoàn tiền
+#### � **Xác Nhận Đơn Hàng**
+- Quy trình xác nhận đơn hàng đơn giản
+- Theo dõi trạng thái đơn hàng
+- Thông báo email cho cập nhật đơn hàng
+- Hệ thống hủy đơn hàng
 
 #### 🔍 **Hệ Thống Tìm Kiếm Nâng Cao**
 - Tìm kiếm toàn cục sản phẩm, danh mục, người dùng, đơn hàng và đánh giá
@@ -556,7 +546,6 @@ Tài liệu API toàn diện có sẵn tại: **[Tài Liệu API](api-docs.md)**
 - **Tìm kiếm:** `/api/search/*` - Tìm kiếm nâng cao, filter, autocomplete
 - **Giỏ hàng:** `/api/cart/*` - Quản lý giỏ hàng
 - **Đơn hàng:** `/api/orders/*` - Tạo đơn, theo dõi, quản lý
-- **Thanh toán:** `/api/payments/*` - Xử lý thanh toán, hoàn tiền
 - **Đánh giá:** `/api/reviews/*` - Đánh giá và xếp hạng sản phẩm
 - **Admin:** `/api/admin/*` - Thao tác chỉ dành cho admin
 - **Seller:** `/api/seller/*` - Thao tác đặc thù cho seller
@@ -617,12 +606,11 @@ Theo dõi thứ tự này để test có hệ thống:
    PUT /api/orders/:id/status → Cập nhật trạng thái đơn
    ```
 
-5. **Xử Lý Thanh Toán**
+5. **Xác Nhận Đơn Hàng**
    ```
-   POST /api/payments → Tạo thanh toán
-   GET /api/payments/:id → Xem chi tiết thanh toán
-   PUT /api/payments/:id/status → Cập nhật trạng thái thanh toán
-   GET /api/payments/stats → Xem thống kê thanh toán (admin)
+   POST /api/orders/confirm → Xác nhận đơn hàng
+   GET /api/orders/:id/status → Kiểm tra trạng thái đơn hàng
+   PUT /api/orders/:id/cancel → Hủy đơn hàng
    ```
 
 6. **Đánh Giá & Xếp Hạng**
@@ -666,11 +654,6 @@ Bộ sưu tập Postman bao gồm:
   - Quản lý trạng thái
   - Views admin & seller
 
-- **Payment APIs** (8 endpoints)
-  - Xử lý thanh toán
-  - Theo dõi thanh toán
-  - Hoàn tiền
-  - Phân tích doanh thu
 
 - **Review APIs** (11 endpoints)
   - Thao tác CRUD đánh giá
@@ -709,7 +692,6 @@ WebDevFinal/
 │   │   ├── searchController.js     # Tìm kiếm nâng cao
 │   │   ├── cartController.js       # Giỏ hàng
 │   │   ├── orderController.js      # Đơn hàng
-│   │   ├── paymentController.js    # Thanh toán
 │   │   ├── categoryController.js   # Danh mục
 │   │   ├── reviewController.js     # Đánh giá
 │   │   ├── statsController.js      # Thống kê
@@ -720,7 +702,6 @@ WebDevFinal/
 │   │   ├── Product.js
 │   │   ├── Order.js
 │   │   ├── OrderItem.js
-│   │   ├── Payment.js
 │   │   ├── Category.js
 │   │   ├── Review.js
 │   │   ├── ShoppingCart.js
@@ -739,7 +720,6 @@ WebDevFinal/
 │   │   ├── productService.js
 │   │   ├── cartService.js
 │   │   ├── orderService.js
-│   │   ├── paymentService.js
 │   │   ├── categoryService.js
 │   │   ├── reviewService.js
 │   │   ├── 📂 search/              # Search Services
@@ -765,7 +745,6 @@ WebDevFinal/
 │   │   ├── productValidation.js
 │   │   ├── cartValidation.js
 │   │   ├── orderValidation.js
-│   │   ├── paymentValidation.js
 │   │   ├── categoryValidation.js
 │   │   ├── reviewValidation.js
 │   │   └── searchValidation.js
@@ -885,8 +864,8 @@ POST /api/cart/add
 # 6. Create order / Tạo đơn hàng
 POST /api/orders
 
-# 7. Process payment / Xử lý thanh toán
-POST /api/payments
+# 7. Confirm order / Xác nhận đơn hàng
+POST /api/orders/confirm
 ```
 
 ### API Response Format / Định Dạng Response API
@@ -935,7 +914,6 @@ Authorization: Bearer <your_jwt_token>
 
 - Standard endpoints: 100 requests/minute
 - Authentication endpoints: 10 requests/minute
-- Payment endpoints: 20 requests/minute
 
 ### Support & Contact / Hỗ Trợ & Liên Hệ
 
@@ -956,7 +934,6 @@ Authorization: Bearer <your_jwt_token>
 - [x] Product Management
 - [x] Shopping Cart
 - [x] Order Processing
-- [x] Payment Integration
 - [x] Review System
 - [ ] Real-time Notifications
 - [ ] Advanced Analytics Dashboard
