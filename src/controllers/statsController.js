@@ -62,7 +62,19 @@ const getProductStats = async (req, res) => {
     }
 };
 
-/** (seller stats removed) */
+/**
+ * 7. GET /api/admin/stats/sellers - Thống kê người bán hàng
+ */
+const getSellerStats = async (req, res) => {
+    try {
+        const { limit = 10 } = req.query;
+        const sellerData = await StatsService.getSellerAnalytics(parseInt(limit));
+        return successResponse(res, sellerData, 'Lấy thống kê người bán thành công');
+    } catch (error) {
+        console.error('Get seller stats error:', error);
+        return errorResponse(res, error.message || 'Lỗi khi lấy thống kê người bán', 500);
+    }
+};
 
 /**
  * 8. GET /api/admin/stats/orders - Thống kê đơn hàng theo trạng thái
@@ -88,5 +100,6 @@ module.exports = {
     getRecentActivity,
     getRevenueStats,
     getProductStats,
-    getOrderStatusStats
+    getOrderStatusStats,
+    getSellerStats
 };

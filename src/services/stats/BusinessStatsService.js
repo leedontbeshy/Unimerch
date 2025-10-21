@@ -76,7 +76,58 @@ class BusinessStatsService {
     /**
      * Lấy thống kê người bán hàng
      */
-    // getSellerAnalytics removed (endpoint unused)
+    // getSellerAnalytics 
+     static async getSellerAnalytics(limit = 10) {
+        try {
+            const validLimit = this.validateLimit(limit, 50);
+            
+            const sellerStats = await Stats.getSellerStats(validLimit);
+            
+            // Format dữ liệu seller
+            const formattedSellers = sellerStats.map(seller => ({
+                ...seller,
+                product_count: parseInt(seller.product_count),
+                active_products: parseInt(seller.active_products),
+                total_sold: parseInt(seller.total_sold),
+                total_revenue: parseFloat(seller.total_revenue),
+                order_count: parseInt(seller.order_count),
+                avg_rating: parseFloat(seller.avg_rating),
+                review_count: parseInt(seller.review_count),
+                avg_revenue_per_product: seller.product_count > 0
+                    ? (parseFloat(seller.total_revenue) / parseInt(seller.product_count)).toFixed(2)
+                    : 0,
+                avg_revenue_per_order: seller.order_count > 0
+                    ? (parseFloat(seller.total_revenue) / parseInt(seller.order_count)).toFixed(2)
+                    : 0,
+                product_activity_rate: seller.product_count > 0
+                    ? ((parseInt(seller.active_products) / parseInt(seller.product_count)) * 100).toFixed(2)
+                    : 0
+            }));
+
+            // Tính thống kê tổng hợp
+            const totalRevenue = formattedSellers.reduce((sum, seller) => sum + seller.total_revenue, 0);
+            const totalProducts = formattedSellers.reduce((sum, seller) => sum + seller.product_count, 0);
+            
+            return {
+                top_sellers: formattedSellers,
+                summary: {
+                    total_sellers_analyzed: formattedSellers.length,
+                    total_revenue_all_sellers: totalRevenue,
+                    total_products_all_sellers: totalProducts,
+                    avg_revenue_per_seller: formattedSellers.length > 0
+                        ? (totalRevenue / formattedSellers.length).toFixed(2)
+                        : 0,
+                    avg_products_per_seller: formattedSellers.length > 0
+                        ? (totalProducts / formattedSellers.length).toFixed(1)
+                        : 0,
+                    best_seller: formattedSellers[0]?.username || null
+                },
+                generated_at: new Date().toISOString()
+            };
+        } catch (error) {
+            throw new Error(`Lỗi khi lấy thống kê người bán: ${error.message}`);
+        }
+    }
 
     /**
      * Lấy thống kê đơn hàng theo trạng thái

@@ -17,7 +17,7 @@ const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateC
 const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
 const { searchProducts, searchCategories, searchUsers, searchOrders, searchReviews, globalSearch, getSuggestions, getPopularKeywords, getSearchFilters, getSearchStats } = require('./controllers/searchController');
 const { validateProductSearch, validateCategorySearch, validateUserSearch, validateOrderSearch, validateReviewSearch, validateGlobalSearch } = require('./validation/searchValidation');
-const { getDashboardStats, getRecentActivity, getRevenueStats, getProductStats, getOrderStatusStats } = require('./controllers/statsController');
+const { getDashboardStats, getRecentActivity, getRevenueStats, getProductStats, getOrderStatusStats, getSellerStats } = require('./controllers/statsController');
 const { validateRevenueStatsQuery, validateLimitQuery, validateRecentActivityQuery } = require('./validation/statsValidation');
 
 require('dotenv').config();
@@ -134,6 +134,7 @@ server.get('/api/admin/stats/recent-activity', authenticateToken, requireAdmin, 
 server.get('/api/admin/stats/revenue', authenticateToken, requireAdmin, validateRevenueStatsQuery, getRevenueStats);
 server.get('/api/admin/stats/products', authenticateToken, requireAdmin, validateLimitQuery, getProductStats);
 server.get('/api/admin/stats/orders', authenticateToken, requireAdmin, getOrderStatusStats);
+server.get('/api/admin/stats/sellers', authenticateToken, requireAdmin, getSellerStats);
 
 // Error handling (global)
 process.on('uncaughtException', (error) => {

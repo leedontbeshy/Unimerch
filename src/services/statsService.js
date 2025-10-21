@@ -35,7 +35,10 @@ class StatsService {
     static async getOrderStatusAnalytics() {
         return await BusinessStatsService.getOrderStatusAnalytics();
     }
-    // Combined admin stats removed (endpoints not used)
+    
+    static async getSellerAnalytics(limit = 10) {
+        return await BusinessStatsService.getSellerAnalytics(limit);
+    }
 }
 
 module.exports = StatsService;
