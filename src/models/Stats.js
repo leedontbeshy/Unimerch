@@ -166,27 +166,8 @@ class Stats {
     static async getTopSellingProducts(limit = 10) {
         try {
             const query = `
-                SELECT 
-                    p.id,
-                    p.name,
-                    p.price,
-                    p.discount_price,
-                    p.image_url,
-                    c.name as category_name,
-                    u.username as seller_name,
-                    COALESCE(SUM(oi.quantity), 0) as total_sold,
-                    COALESCE(SUM(oi.quantity * oi.price), 0) as total_revenue,
-                    COUNT(DISTINCT o.id) as order_count
-                FROM products p
-                LEFT JOIN order_items oi ON p.id = oi.product_id
-                LEFT JOIN orders o ON oi.order_id = o.id AND o.status IN ('completed', 'delivered')
-                LEFT JOIN categories c ON p.category_id = c.id
-                LEFT JOIN users u ON p.seller_id = u.id
-                GROUP BY p.id, p.name, p.price, p.discount_price, p.image_url, c.name, u.username
-                ORDER BY total_sold DESC, total_revenue DESC
-                LIMIT $1
+                SELECT * FROM get_top_selling_products($1)
             `;
-
             const result = await pool.query(query, [limit]);
             return result.rows;
         } catch (error) {
