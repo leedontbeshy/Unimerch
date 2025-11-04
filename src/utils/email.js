@@ -4,7 +4,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendResetPasswordEmail = async (email, resetToken) => {
     try {
-        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+        const resetUrl = `${process.env.FRONTEND_URL}?token=${resetToken}`;
         
         const { data, error } = await resend.emails.send({
             from: 'UniMerch <noreply@unimerch.space>', 
