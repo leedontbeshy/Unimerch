@@ -10,12 +10,10 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000, // timeout khi kết nối
 });
 
-// Bắt lỗi pool nếu có
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
 });
 
-// Hàm test connection (có thể gọi ở server.js khi start app)
 const testConnection = async () => {
   let client;
   try {
