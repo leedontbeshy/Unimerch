@@ -7,13 +7,7 @@ const Product = require('../models/Product');
  */
 class CartService {
 
-    /**
-     * Business Logic: Thêm sản phẩm vào giỏ hàng
-     * @param {number} userId - ID của user
-     * @param {number} productId - ID của sản phẩm
-     * @param {number} quantity - Số lượng cần thêm
-     * @returns {Object} - Thông tin cart item đã được thêm
-     */
+
     static async addProductToCart(userId, productId, quantity) {
         // 1. Kiểm tra sản phẩm có tồn tại không
         const product = await Product.findById(productId);
@@ -52,11 +46,6 @@ class CartService {
         return detailedCartItem;
     }
 
-    /**
-     * Business Logic: Lấy giỏ hàng của user với tính toán tổng kết
-     * @param {number} userId - ID của user
-     * @returns {Object} - Thông tin giỏ hàng và tổng kết
-     */
     static async getUserCart(userId) {
         // 1. Lấy danh sách items trong giỏ
         const cartItems = await ShoppingCart.getCartByUserId(userId);
@@ -81,13 +70,7 @@ class CartService {
         return result;
     }
 
-    /**
-     * Business Logic: Cập nhật số lượng sản phẩm trong giỏ hàng
-     * @param {number} cartItemId - ID của cart item
-     * @param {number} userId - ID của user
-     * @param {number} quantity - Số lượng mới
-     * @returns {Object} - Thông tin cart item đã được cập nhật
-     */
+
     static async updateCartItemQuantity(cartItemId, userId, quantity) {
         // 1. Kiểm tra cart item có tồn tại không
         const cartItem = await ShoppingCart.findById(cartItemId, userId);
@@ -124,12 +107,6 @@ class CartService {
         return detailedItem;
     }
 
-    /**
-     * Business Logic: Xóa sản phẩm khỏi giỏ hàng
-     * @param {number} cartItemId - ID của cart item
-     * @param {number} userId - ID của user
-     * @returns {boolean} - True nếu xóa thành công
-     */
     static async removeProductFromCart(cartItemId, userId) {
         // 1. Kiểm tra cart item có tồn tại không
         const cartItem = await ShoppingCart.findById(cartItemId, userId);
@@ -147,11 +124,7 @@ class CartService {
         return { removed_item_id: cartItemId };
     }
 
-    /**
-     * Business Logic: Xóa toàn bộ giỏ hàng
-     * @param {number} userId - ID của user
-     * @returns {Object} - Thông tin số lượng items đã xóa
-     */
+
     static async clearUserCart(userId) {
         const removedCount = await ShoppingCart.clearCart(userId);
         
@@ -161,11 +134,6 @@ class CartService {
         };
     }
 
-    /**
-     * Business Logic: Kiểm tra tính khả dụng của giỏ hàng
-     * @param {number} userId - ID của user
-     * @returns {Object} - Kết quả kiểm tra với danh sách valid/invalid items
-     */
     static async validateUserCart(userId) {
         const validationResults = await ShoppingCart.validateCartItems(userId);
         
@@ -192,11 +160,6 @@ class CartService {
         return result;
     }
 
-    /**
-     * Business Logic: Lấy số lượng items trong giỏ hàng
-     * @param {number} userId - ID của user
-     * @returns {Object} - Thống kê số lượng items
-     */
     static async getCartItemsCount(userId) {
         const totalItems = await ShoppingCart.getCartItemCount(userId);
         const cartItems = await ShoppingCart.getCartByUserId(userId);
@@ -207,11 +170,6 @@ class CartService {
         };
     }
 
-    /**
-     * Business Logic: Lấy tổng tiền giỏ hàng
-     * @param {number} userId - ID của user
-     * @returns {Object} - Tổng tiền và currency
-     */
     static async getCartTotalAmount(userId) {
         const totalAmount = await ShoppingCart.getCartTotal(userId);
 
@@ -221,12 +179,6 @@ class CartService {
         };
     }
 
-    /**
-     * Helper method: Lấy thông báo lỗi chi tiết cho validation
-     * @param {string} validationStatus - Trạng thái validation
-     * @param {Object} item - Cart item
-     * @returns {string} - Thông báo lỗi
-     */
     static getValidationErrorMessage(validationStatus, item) {
         switch (validationStatus) {
             case 'unavailable':
@@ -238,11 +190,7 @@ class CartService {
         }
     }
 
-    /**
-     * Business Logic: Chuẩn bị giỏ hàng cho việc checkout
-     * @param {number} userId - ID của user
-     * @returns {Object} - Thông tin giỏ hàng đã validate để checkout
-     */
+
     static async prepareCartForCheckout(userId) {
         // 1. Validate giỏ hàng
         const validation = await this.validateUserCart(userId);
@@ -269,12 +217,7 @@ class CartService {
         };
     }
 
-    /**
-     * Business Logic: Xóa các sản phẩm đã được order khỏi giỏ hàng
-     * @param {number} userId - ID của user
-     * @param {Array} productIds - Mảng IDs của products đã được order
-     * @returns {number} - Số lượng items đã được xóa
-     */
+
     static async removeOrderedItemsFromCart(userId, productIds) {
         if (!productIds || productIds.length === 0) {
             return 0;

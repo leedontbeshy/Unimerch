@@ -103,16 +103,14 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        
-        // Controller chỉ gọi service
+
         const categoryId = CategoryService.validateCategoryId(id);
         await CategoryService.deleteCategory(categoryId);
         
         return successResponse(res, null, 'Xóa danh mục thành công');
     } catch (error) {
         console.error('Delete category error:', error);
-        
-        // Xử lý lỗi từ service
+
         if (error.message === 'ID danh mục không hợp lệ') {
             return errorResponse(res, error.message, 400);
         }
