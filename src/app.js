@@ -13,6 +13,7 @@ const { getProducts, getProductById, createProduct, updateProduct, deleteProduct
 const { createOrder, getUserOrders, getOrderById, updateOrderStatus, cancelOrder, getAllOrders, getSellerOrders, getOrderItems, getOrderStats, confirmOrder } = require('./controllers/orderController');
 const { validateCreateOrder, validateUpdateOrderStatus, validateOrderId, validateOrdersQuery } = require('./validation/orderValidation');
 const { addToCart, getCart, updateCartItem, removeFromCart, clearCart, validateCart, getCartCount, getCartTotal } = require('./controllers/cartController');
+const { createPayment, getPaymentsByOrderId, getPaymentById, updatePaymentStatus, getUserPayments, getAllPayments, getPaymentStats, getRevenue, refundPayment } = require('./controllers/paymentController');
 
 const { getReviews, getReviewById, getReviewsByProduct, getReviewsByUser, getMyReviews, createReview, updateReview, deleteReview, getProductRatingStats, getTopRatedProducts, checkUserReviewed } = require('./controllers/reviewController');
 const { searchProducts, searchCategories, searchUsers, searchOrders, searchReviews, globalSearch, getSuggestions, getPopularKeywords, getSearchFilters, getSearchStats } = require('./controllers/searchController');
@@ -98,6 +99,19 @@ server.get('/api/cart/total', authenticateToken, getCartTotal);
 server.put('/api/cart/update/:id', authenticateToken, updateCartItem);
 server.delete('/api/cart/remove/:id', authenticateToken, removeFromCart);
 server.delete('/api/cart/clear', authenticateToken, clearCart);
+
+// Payment routes
+server.post('/api/payments', authenticateToken, createPayment);
+server.get('/api/payments/user', authenticateToken, getUserPayments);
+server.get('/api/payments/stats', authenticateToken, getPaymentStats);
+server.get('/api/payments/revenue', authenticateToken, getRevenue);
+server.get('/api/payments/order/:orderId', authenticateToken, getPaymentsByOrderId);
+server.get('/api/payments/:id', authenticateToken, getPaymentById);
+server.put('/api/payments/:id/status', authenticateToken, updatePaymentStatus);
+server.post('/api/payments/:id/refund', authenticateToken, requireAdmin, refundPayment);
+
+// Admin payment routes
+server.get('/api/admin/payments', authenticateToken, requireAdmin, getAllPayments);
 
 // Review routes
 server.get('/api/reviews', getReviews);
