@@ -1,7 +1,25 @@
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isEmail = (value = '') => emailRegex.test(String(value).trim());
+
+const isEmpty = (value) => {
+    if (value === undefined || value === null) return true;
+    if (typeof value === 'string') return value.trim().length === 0;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === 'object') return Object.keys(value).length === 0;
+    return false;
+};
+
+const isLength = (value = '', options = {}) => {
+    const str = String(value);
+    const min = options.min ?? 0;
+    const max = options.max ?? Infinity;
+    return str.length >= min && str.length <= max;
+};
+
 class Validator {
     static validateEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+        return isEmail(email);
     }
     
     static validatePassword(password) {
@@ -82,5 +100,8 @@ class Validator {
 }
 
 module.exports = {
-    Validator
+    Validator,
+    isEmail,
+    isEmpty,
+    isLength
 };
