@@ -264,7 +264,7 @@ class Payment {
     }
   }
 
- Lấy doanh thu theo thời gian
+ //Lấy doanh thu theo thời gian
 static async getRevenueByPeriod(period = 'day', limit = 30) {
   try {
     // BƯỚC 1: Validation và mapping an toàn với hardcoded values
