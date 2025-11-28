@@ -26,7 +26,8 @@ class SearchQueryBuilder {
      */
     addTextSearch(value, fields) {
         if (value && value.trim() !== '') {
-            const conditions = fields.map(field => `${field} ILIKE $${this.paramIndex}`);
+            // Use unaccent for accent-insensitive search
+            const conditions = fields.map(field => `unaccent(${field}) ILIKE unaccent($${this.paramIndex})`);
             this.whereConditions.push(`(${conditions.join(' OR ')})`);
             this.queryParams.push(`%${value.trim()}%`);
             this.paramIndex++;
@@ -118,7 +119,8 @@ class SearchQueryBuilder {
      */
     addLike(field, value) {
         if (value && value.trim() !== '') {
-            this.whereConditions.push(`${field} ILIKE $${this.paramIndex}`);
+            // Use unaccent for accent-insensitive LIKE
+            this.whereConditions.push(`unaccent(${field}) ILIKE unaccent($${this.paramIndex})`);
             this.queryParams.push(`%${value.trim()}%`);
             this.paramIndex++;
         }
