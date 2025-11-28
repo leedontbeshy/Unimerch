@@ -19,17 +19,31 @@ class SearchQueryBuilder {
     }
 
     /**
-     * Thêm điều kiện text search (ILIKE)
+     * Escape special regex characters
+     * @param {string} str - String to escape
+     * @returns {string}
+     */
+    escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    /**
+     * text search + word boundaries
      * @param {string} value - Giá trị tìm kiếm
      * @param {Array<string>} fields - Danh sách field cần search
      * @returns {SearchQueryBuilder}
      */
     addTextSearch(value, fields) {
         if (value && value.trim() !== '') {
-            // Use unaccent for accent-insensitive search
-            const conditions = fields.map(field => `unaccent(${field}) ILIKE unaccent($${this.paramIndex})`);
+            const searchTerm = value.trim();
+
+            //pótgresql word boundaries: \m (start) and \M (end)
+            const conditions = fields.map(field =>
+                `unaccent(${field}) ~* unaccent($${this.paramIndex})`
+            );
             this.whereConditions.push(`(${conditions.join(' OR ')})`);
-            this.queryParams.push(`%${value.trim()}%`);
+
+            // word boundary regex to prevent "nón" from matching "nóng"
+            this.queryParams.push(`\\m${this.escapeRegex(searchTerm)}\\M`);
             this.paramIndex++;
         }
         return this;
@@ -63,13 +77,13 @@ class SearchQueryBuilder {
             this.queryParams.push(parseFloat(min));
             this.paramIndex++;
         }
-        
+
         if (max !== undefined && max !== null && max !== '') {
             this.whereConditions.push(`${field} <= $${this.paramIndex}`);
             this.queryParams.push(parseFloat(max));
             this.paramIndex++;
         }
-        
+
         return this;
     }
 
@@ -86,13 +100,13 @@ class SearchQueryBuilder {
             this.queryParams.push(fromDate);
             this.paramIndex++;
         }
-        
+
         if (toDate) {
             this.whereConditions.push(`DATE(${field}) <= $${this.paramIndex}`);
             this.queryParams.push(toDate);
             this.paramIndex++;
         }
-        
+
         return this;
     }
 
@@ -189,11 +203,11 @@ class SearchQueryBuilder {
      */
     static buildOrderBy(sortBy = 'created_at', sortOrder = 'desc', validSorts = {}) {
         const order = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-        
+
         if (validSorts[sortBy]) {
             return `${validSorts[sortBy]} ${order}`;
         }
-        
+
         // Default fallback
         return `created_at ${order}`;
     }
@@ -208,7 +222,7 @@ class SearchQueryBuilder {
         const currentPage = Math.max(1, parseInt(page));
         const itemsPerPage = Math.min(100, Math.max(1, parseInt(limit)));
         const offset = (currentPage - 1) * itemsPerPage;
-        
+
         return {
             page: currentPage,
             limit: itemsPerPage,
@@ -225,7 +239,7 @@ class SearchQueryBuilder {
      */
     static buildPaginationResponse(page, limit, total) {
         const totalPages = Math.ceil(total / limit);
-        
+
         return {
             current_page: parseInt(page),
             total_pages: totalPages,
