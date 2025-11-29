@@ -21,7 +21,7 @@ class CategorySearchModel {
             LEFT JOIN products p ON c.id = p.category_id AND p.status = 'available'
             WHERE ${whereCondition}
             GROUP BY c.id
-            ORDER BY c.name ASC
+            ORDER BY unaccent(c.name) ASC
             LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
         `;
 

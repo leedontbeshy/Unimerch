@@ -71,7 +71,7 @@ class ProductSearchModel {
         const query = `
             SELECT DISTINCT name 
             FROM products 
-            WHERE name ILIKE $1 AND status = 'available'
+            WHERE unaccent(name) ILIKE unaccent($1) AND status = 'available'
             ORDER BY name ASC
             LIMIT $2
         `;

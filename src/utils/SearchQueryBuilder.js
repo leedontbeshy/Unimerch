@@ -27,7 +27,7 @@ class SearchQueryBuilder {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
     /**
-     * text search + word boundaries
+     * Accent-insensitive text search for Vietnamese
      * @param {string} value - Giá trị tìm kiếm
      * @param {Array<string>} fields - Danh sách field cần search
      * @returns {SearchQueryBuilder}
@@ -35,15 +35,12 @@ class SearchQueryBuilder {
     addTextSearch(value, fields) {
         if (value && value.trim() !== '') {
             const searchTerm = value.trim();
-
-            //pótgresql word boundaries: \m (start) and \M (end)
+            // Use accent-insensitive ILIKE for Vietnamese
             const conditions = fields.map(field =>
-                `unaccent(${field}) ~* unaccent($${this.paramIndex})`
+                `unaccent(${field}) ILIKE unaccent($${this.paramIndex})`
             );
             this.whereConditions.push(`(${conditions.join(' OR ')})`);
-
-            // word boundary regex to prevent "nón" from matching "nóng"
-            this.queryParams.push(`\\m${this.escapeRegex(searchTerm)}\\M`);
+            this.queryParams.push(`%${searchTerm}%`);
             this.paramIndex++;
         }
         return this;

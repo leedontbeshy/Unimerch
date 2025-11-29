@@ -26,7 +26,7 @@ class CategorySearchService {
             let queryParams = [];
 
             if (q && q.trim() !== '') {
-                whereCondition = '(c.name ILIKE $1 OR c.description ILIKE $1)';
+                whereCondition = '(unaccent(c.name) ILIKE unaccent($1) OR unaccent(c.description) ILIKE unaccent($1))';
                 queryParams.push(`%${q.trim()}%`);
             }
 
